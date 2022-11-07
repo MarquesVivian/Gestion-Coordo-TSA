@@ -1,0 +1,29 @@
+table{
+    border: 2px solid rgb(190, 50, 50);
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+}
+tr{
+    border-bottom: 1px solid black;
+}
+.prenom{
+    background-color: blueviolet;
+    width: 10%;
+}
+
+.prenom input{
+    background-color: blueviolet;
+    border: none;
+    width: 100%;
+}
+.horraire{
+    border: 2px solid black;
+    width: 1%;
+}
+td.quart{
+    border: 2px dashed lightgray;
+}
+.Aquatique{
+    background-color: aqua;
+}
