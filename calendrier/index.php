@@ -36,6 +36,7 @@ ORDER BY personnels.id_P;');
     $idemiH =0;
     $ihorraire = 1;
     for ($i = 1; $i < 65; $i++) { //la premiere ligne sera composer d'une heure (de 8 à 24) suivi de 3 champs vide qui represent 15 30 et 45 minutes
+        //test
 
 
         if ($i == $ihorraire) {
