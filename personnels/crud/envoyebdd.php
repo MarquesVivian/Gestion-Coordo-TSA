@@ -23,9 +23,9 @@ if ($_GET['exec'] == "creation") {
 <html>
  <head>
 <title>Redirection en htm</title>
-<meta http-equiv="refresh" content="5; URL=http://testcoordo/personnels/">
+<meta http-equiv="refresh" content="1; URL=http://testcoordo/personnels/">
 </head>
 <body>
- Redirection vers www.manouvelleadresse.com dans 5 secondes.
+ Redirection vers www.manouvelleadresse.com dans 1 secondes.
  </body>
 </html>

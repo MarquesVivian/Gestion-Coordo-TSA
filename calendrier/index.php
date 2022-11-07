@@ -15,6 +15,7 @@
     //on fait une requete pour avoir tout les personnels valide et qui appartienne au bon camping
     $insP = $bdd->query('SELECT id_P,nom_P,prenom_P
 FROM `personnels`
+WHERE `active` = 1 
 ORDER BY personnels.id_P;');
 
     //le tableau et = au <table> qui sera afficher ($tableauPersonne[nbAnimateur][65])
@@ -24,25 +25,35 @@ ORDER BY personnels.id_P;');
     $tableauPersonne[0][0] = "    
         <div class='container-fluid'>
             <h1 class='d-flex justify-content-center'>Calendrier du " . $date . " </h1>
-            <table class='table table-bordered table-dark'>
+            <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th style='padding-left: 0px; padding-right: 0px;'>
-                        <input type='submit' style='width : 100%; background-color: blueviolet;' value='Animateurs' >
+                    <th style='padding-left: 0px; padding-right: 0px;' scope='col'>
+                        <input type='submit' style='width : 100%;' value='Animateurs' >
                     </th>";
 
     $horraire = 8;
-    $i4 = 1;
+    $idemiH =0;
+    $ihorraire = 1;
     for ($i = 1; $i < 65; $i++) { //la premiere ligne sera composer d'une heure (de 8 à 24) suivi de 3 champs vide qui represent 15 30 et 45 minutes
 
 
-        if ($i == $i4) {
-            $tableauPersonne[0][$i] = "<th>" . $horraire . "</th>"; //les horraire de 8 a 24
+        if ($i == $ihorraire) {
+            $tableauPersonne[0][$i] = "<th scope='col' colspan='4' style='border-left: 2px solid black; text-align: center;' ><p> ". $horraire . "h</p></th>"; //les horraire de 8 a 24
             $horraire++;
-            $i4 += 4;
-        } else {
-            $tableauPersonne[0][$i] = "<th></th>"; //les case vide
+            $ihorraire += 4;
+            $idemiH =0;
+        } elseif($idemiH == 3) {
+            //$tableauPersonne[0][$i] = "<td style='border-left: 2px dashed gray;'></td>";
+            $tableauPersonne[0][$i] = "";
+            //$idemiH += 3;
+        }else{
+            //$tableauPersonne[0][$i] = "<th></th>"; //les case vide
+            $tableauPersonne[0][$i] = ""; //les case vide
+            //$idemiH++;
         }
+        $idemiH++;
+        
     }
     $tableauPersonne[0][64] .= "
                 </tr>
@@ -60,9 +71,9 @@ ORDER BY personnels.id_P;');
     while ($ligneP = $insP->fetch()) { //Pour chaque personne (a rajouter le camping et le active)
         $tableauPersonne[$lignePersonne][0] = "
         <tr>
-            <td style='padding-left: 0px; padding-right: 0px;'>
-                <input type='submit' style='width : 100%; background-color: blueviolet;' value=" . $ligneP["nom_P"] . " >
-            </td>";
+            <th scope='row' style='padding-left: 0px; padding-right: 0px; vertical-align: middle;'>
+            <a href='index.php' style='text-decoration: none;'><button style='display:block;width:100%;line-height:30px;color : red;'>" . $ligneP["nom_P"] . "</button></a>
+            </th>";
 
 
 
@@ -95,8 +106,19 @@ ORDER BY personnels.id_P;');
             $dureeActivite = $dureeActivite > ((int)$dureeActivite) ? ((int)$dureeActivite + 1) : $dureeActivite; //si $a est superieur a (int)$a ca veut dire que c'est un float donc on le fait passer en INT+1 pour avoir la bonne durée
 
             $dif = (int) $animation['difPremier'] / 15 + 1;
+            $l=0;
             for ($case; $case < (int)$dif; $case++) { //on remplis de rien tant qu'on a pas atteind le début de l'activité
-                $tableauPersonne[$lignePersonne][$case] = in_array($case, $tableauH) ? "<td class='horraire'></td>" : "<td class='horraire quart'></td>";
+                $tableauPersonne[$lignePersonne][$case] = in_array($case, $tableauH) ? "<td style='border-left: 2px solid black;'></td>" : "<td class='horraire quart'></td>";
+                if(in_array($case, $tableauH)){
+                    $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px solid black;'></td>";
+                    $l=0;
+                }elseif($l==2){
+                    $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px dashed gray;'></td>";
+                    $l=0;
+                }else{
+                    $tableauPersonne[$lignePersonne][$case] = "<td></td>";
+                }
+                $l++;
             }
 
             //ici on est arriver a udébut de l'acitivité
@@ -105,8 +127,8 @@ ORDER BY personnels.id_P;');
 
             $tableauPersonne[$lignePersonne][$case] = "
             
-                <td class='horraire' style='background : " . $animation["couleur_Ac"] . "' colspan='" . ((int)$dureeActivite) . "'>
-                    <span class='texte-hover texte-original'>" . $animation["libelle_Ac"] . " " . $horaireDebut[0] . "H". $horaireDebut[1] . " " . $horaireFin[0] . "H". $horaireFin[1] ."</span>
+                <td style='background : " . $animation["couleur_Ac"] . "' colspan='" . ((int)$dureeActivite) . "'>
+                    <span class='texte-hover texte-original'>" . $animation["libelle_Ac"] . "<br> " . $horaireDebut[0] . "H". $horaireDebut[1] . " " . $horaireFin[0] . "H". $horaireFin[1] ."</span>
 
                 </td>
             ";
@@ -118,9 +140,19 @@ ORDER BY personnels.id_P;');
                 $tableauPersonne[$lignePersonne][$case] = "";
             }
         }
-
+$l=0;
         for ($case; $case < 65; $case++) {
-            $tableauPersonne[$lignePersonne][$case] = in_array($case, $tableauH) ? "<td class='horraire'></td>" : "<td class='horraire quart'></td>";
+            $tableauPersonne[$lignePersonne][$case] = in_array($case, $tableauH) ? "<td style='border-left: 2px solid black;'></td>" : "<td></td>";
+            if(in_array($case, $tableauH)){
+                $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px solid black;'></td>";
+                $l=0;
+            }elseif($l==2){
+                $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px dashed gray;'></td>";
+                $l=0;
+            }else{
+                $tableauPersonne[$lignePersonne][$case] = "<td></td>";
+            }
+            $l++;
         }
         $tableauPersonne[$lignePersonne][$case - 1] .= "
                     </tr>";
