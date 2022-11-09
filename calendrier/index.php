@@ -20,6 +20,17 @@ ORDER BY personnels.id_P;');
 
     //le tableau et = au <table> qui sera afficher ($tableauPersonne[nbAnimateur][65])
 
+    //-----------------------------------------------------------------------------------------------TEST------------------------------------------------------------------
+    $tableauPersonneTest[0][0]="    
+    <div class='container-fluid'>
+        <h1 class='d-flex justify-content-center'>Calendrier du " . $date . " </h1>
+        <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='padding-left: 0px; padding-right: 0px;' scope='col'>
+                    <input type='submit' style='width : 100%;' value='Animateurs' >
+                </th>";
+
 
     //la premiere case sera juste une case informative
     $tableauPersonne[0][0] = "    
@@ -33,28 +44,30 @@ ORDER BY personnels.id_P;');
                     </th>";
 
     $horraire = 8;
-    $idemiH =0;
+    $idemiH = 0;
     $ihorraire = 1;
     for ($i = 1; $i < 65; $i++) { //la premiere ligne sera composer d'une heure (de 8 à 24) suivi de 3 champs vide qui represent 15 30 et 45 minutes
         //test
 
 
         if ($i == $ihorraire) {
-            $tableauPersonne[0][$i] = "<th scope='col' colspan='4' style='border-left: 2px solid black; text-align: center;' ><p> ". $horraire . "h</p></th>"; //les horraire de 8 a 24
+            $tableauPersonne[0][$i] = "<th scope='col' colspan='4' style='border-left: 2px solid black; text-align: center;' ><p> " . $horraire . "h</p></th>"; //les horraire de 8 a 24
+            $tableauPersonneTest[0][$i] = "<th scope='col' colspan='4' style='border-left: 2px solid black; text-align: center;' ><p> " . $horraire . "h</p></th>"; //les horraire de 8 a 24
             $horraire++;
             $ihorraire += 4;
-            $idemiH =0;
-        } elseif($idemiH == 3) {
+            $idemiH = 0;
+        } elseif ($idemiH == 3) {
             //$tableauPersonne[0][$i] = "<td style='border-left: 2px dashed gray;'></td>";
             $tableauPersonne[0][$i] = "";
+            $tableauPersonneTest[0][$i] = "";
             //$idemiH += 3;
-        }else{
+        } else {
             //$tableauPersonne[0][$i] = "<th></th>"; //les case vide
             $tableauPersonne[0][$i] = ""; //les case vide
+            $tableauPersonneTest[0][$i] = "";
             //$idemiH++;
         }
         $idemiH++;
-        
     }
     $tableauPersonne[0][64] .= "
                 </tr>
@@ -75,7 +88,11 @@ ORDER BY personnels.id_P;');
             <th scope='row' style='padding-left: 0px; padding-right: 0px; vertical-align: middle;'>
             <a href='index.php' style='text-decoration: none;'><button style='display:block;width:100%;line-height:30px;color : red;'>" . $ligneP["nom_P"] . "</button></a>
             </th>";
-
+            $tableauPersonneTest[$lignePersonne][0] = "
+            <tr>
+                <th scope='row' style='padding-left: 0px; padding-right: 0px; vertical-align: middle;'>
+                <a href='index.php' style='text-decoration: none;'><button style='display:block;width:100%;line-height:30px;color : red;'>" . $ligneP["nom_P"] . "</button></a>
+                </th>";
 
 
         //on vas remplir le tableau
@@ -107,29 +124,38 @@ ORDER BY personnels.id_P;');
             $dureeActivite = $dureeActivite > ((int)$dureeActivite) ? ((int)$dureeActivite + 1) : $dureeActivite; //si $a est superieur a (int)$a ca veut dire que c'est un float donc on le fait passer en INT+1 pour avoir la bonne durée
 
             $dif = (int) $animation['difPremier'] / 15 + 1;
-            $l=0;
+            $l = 0;
             for ($case; $case < (int)$dif; $case++) { //on remplis de rien tant qu'on a pas atteind le début de l'activité
-                $tableauPersonne[$lignePersonne][$case] = in_array($case, $tableauH) ? "<td style='border-left: 2px solid black;'></td>" : "<td class='horraire quart'></td>";
-                if(in_array($case, $tableauH)){
+                if (in_array($case, $tableauH)) {
                     $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px solid black;'></td>";
-                    $l=0;
-                }elseif($l==2){
+                    $tableauPersonneTest[$lignePersonne][$case] = "<td style='border-left: 2px solid black;'></td>";
+                    
+                    $l = 0;
+                } elseif ($l == 2) {
                     $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px dashed gray;'></td>";
-                    $l=0;
-                }else{
+                    $tableauPersonneTest[$lignePersonne][$case] = "<td style='border-left: 2px dashed gray;'></td>";
+                    $l = 0;
+                } else {
                     $tableauPersonne[$lignePersonne][$case] = "<td></td>";
+                    $tableauPersonneTest[$lignePersonne][$case] = "<td></td>";
                 }
                 $l++;
             }
 
             //ici on est arriver a udébut de l'acitivité
             //on lui donne la taille qu'elle dois avoir
-            //je met un hover pour avoir plus de detail quand on passe la souris dessus
 
             $tableauPersonne[$lignePersonne][$case] = "
             
                 <td style='background : " . $animation["couleur_Ac"] . "' colspan='" . ((int)$dureeActivite) . "'>
-                    <span class='texte-hover texte-original'>" . $animation["libelle_Ac"] . "<br> " . $horaireDebut[0] . "H". $horaireDebut[1] . " " . $horaireFin[0] . "H". $horaireFin[1] ."</span>
+                    <span class='texte-hover texte-original'>" . $animation["libelle_Ac"] . "<br> " . $horaireDebut[0] . "H" . $horaireDebut[1] . " " . $horaireFin[0] . "H" . $horaireFin[1] . "</span>
+
+                </td>
+            ";
+            $tableauPersonneTest[$lignePersonne][$case] = "
+            
+                <td style='background : " . $animation["couleur_Ac"] . "' colspan='" . ((int)$dureeActivite) . "'>
+                    <span class='texte-hover texte-original'>" . $animation["libelle_Ac"] . "<br> " . $horaireDebut[0] . "H" . $horaireDebut[1] . " " . $horaireFin[0] . "H" . $horaireFin[1] . "</span>
 
                 </td>
             ";
@@ -139,29 +165,39 @@ ORDER BY personnels.id_P;');
             $test = $case + (int)$dureeActivite;
             for ($case; $case < $test - 1; $case++) {
                 $tableauPersonne[$lignePersonne][$case] = "";
+                $tableauPersonneTest[$lignePersonne][$case] = "";
             }
         }
-$l=0;
+        $l = 0;
         for ($case; $case < 65; $case++) {
-            $tableauPersonne[$lignePersonne][$case] = in_array($case, $tableauH) ? "<td style='border-left: 2px solid black;'></td>" : "<td></td>";
-            if(in_array($case, $tableauH)){
+            if (in_array($case, $tableauH)) {
                 $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px solid black;'></td>";
-                $l=0;
-            }elseif($l==2){
+                $tableauPersonneTest[$lignePersonne][$case] = "<td style='border-left: 2px solid black;'></td>";
+                $l = 0;
+            } elseif ($l == 2) {
                 $tableauPersonne[$lignePersonne][$case] = "<td style='border-left: 2px dashed gray;'></td>";
-                $l=0;
-            }else{
+                $tableauPersonneTest[$lignePersonne][$case] = "<td style='border-left: 2px dashed gray;'></td>";
+                $l = 0;
+            } else {
                 $tableauPersonne[$lignePersonne][$case] = "<td></td>";
+                $tableauPersonneTest[$lignePersonne][$case] = "<td></td>";
             }
             $l++;
         }
         $tableauPersonne[$lignePersonne][$case - 1] .= "
                     </tr>";
+                    $tableauPersonneTest[$lignePersonne][$case - 1] .= "
+                    </tr>";
         $lignePersonne++;
     }
     $tableauPersonne[sizeof($tableauPersonne) - 1][sizeof($tableauPersonne[0]) - 1] .= " 
     </tbody>
-</table>";
+</table>
+</div>";
+$tableauPersonneTest[sizeof($tableauPersonne) - 1][sizeof($tableauPersonne[0]) - 1] .= " 
+    </tbody>
+</table>
+</div>";
 
     //-----------------------------------------------------------Création du tableau-----------------------------------------------------------
 
@@ -171,10 +207,16 @@ $l=0;
             echo $tableauPersonne[$t][$y];
         }
     }
+    for ($t = 0; $t < sizeof($tableauPersonneTest); $t++) {
+        for ($y = 0; $y < sizeof($tableauPersonneTest[$t]); $y++) {
+            echo $tableauPersonneTest[$t][$y];
+        }
+    }
 
 
 
     ?>
+
 
 
 
