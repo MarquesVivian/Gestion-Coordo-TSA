@@ -8,7 +8,7 @@
 </head>
 <body>
 <?php 
-    include("navBar.html")
+    include("../navBar.html")
     ?>
 </body>
 </html>

@@ -17,19 +17,26 @@ class Personnel
 
     protected $photo;
 
+    
+
     protected array $tableauPersonnels;
 
-    public function __construct($id, $nom, $prenom, $numTel, $email, $photo, $idCamping, $idRole)
+    protected $identifiant;
+
+    protected $MDP;
+
+    public function __construct($id, $nom, $prenom, $numTel, $email, $idCamping, $idRole, $identifiant, $MDP)
     {
         $this->id = $id;
         $this->nom = $nom;
         $this->prenom = $prenom;
         $this->numTel = $numTel;
         $this->email = $email;
-        $this->photo = $photo;
         $this->idCamping = $idCamping;
         $this->idRole = $idRole;
 
+        $this->identifiant = $identifiant;
+        $this->MDP = $MDP;
     }
 
     #region GetteurSetteur
@@ -195,7 +202,7 @@ class Personnel
         $row = 4;
         while ($p = $insPersonnels->fetch()) {
             $p["photo"] = ($p["photo"]!='') ?  $p["photo"]  :"img\\123.jpg";
-            $personnel = new Personnel($p["id_P"],$p["nom_P"],$p["prenom_P"],$p["num_Tel_P"],$p["email_P"],$p["photo"],$p["fk_Cam_P"],$p["fk_R_P"],);
+            $personnel = new Personnel($p["id_P"],$p["nom_P"],$p["prenom_P"],$p["num_Tel_P"],$p["email_P"],$p["photo"],$p["fk_Cam_P"],$p["fk_R_P"],"","");
             $personnels[$iterator] = $personnel;
             if($row == 3){
                 echo"</div>
@@ -277,19 +284,24 @@ public function touPersonnels($idCamp){
 }
 
 
+/**SELECT personnels.id_P, nom_P, prenom_P, num_Tel_P, email_P, photo_P, id_R, libelle_R, campings.id_Cam, nom_Cam, personnels.active_P from personnels INNER JOIN roles on roles.id_R = personnels.fk_R_P INNER JOIN travaille on travaille.id_P = personnels.id_P INNER JOIN campings ON campings.id_Cam = travaille.id_Cam WHERE id_R in (1,2) AND personnels.active_P = 1 AND campings.active_Cam = 1; */
+
+
 public function creationPersonnel(){
     include "../DAO.php";
 
     echo'
-    
-    <form  action="crud/envoyebdd.php" methode="post">
+    <form enctype="multipart/form-data" action="crud/envoyebdd.php" method="post">
     <input type="hidden" name="table" value="personnels"/>
     <input type="hidden" name="exec" value="creation"/>
         Nom : <input type="text" name="nom" placeholder="Nom"/><br>
         Prenom : <input type="text" name="prenom" placeholder="Prenom"><br>
         tel : <input type="text" name="tel" maxlenght ="12"><br>
         mail : <input type="text" name="mail" maxlenght ="12"><br>
-        mdr : <input type="text" name="mdp"><br>
+        Identifiant : <input type="text" name="identifiant"><br>
+        mot de passe : <input type="password" name="mdp"><br>
+        <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
+        Photo : <input type="file" name="Photo"><br>
         <label for="campings-select">Choisir un camping</label>
         <select name="campings" id="camping-select">
         ';
