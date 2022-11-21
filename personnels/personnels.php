@@ -296,9 +296,8 @@ public function creationPersonnel(){
         Prenom : <input type="text" name="prenom" placeholder="Prenom"><br>
         tel : <input type="text" name="tel" maxlenght ="12"><br>
         mail : <input type="text" name="mail" maxlenght ="12"><br>
-        Identifiant : <input type="text" name="identifiant"><br>
         mot de passe : <input type="password" name="mdp"><br>
-        <input type="hidden" name="MAX_FILE_SIZE" value="30000" />
+        <input type="hidden" name="MAX_FILE_SIZE" value="300000" />
         Photo : <input type="file" name="Photo"><br>
         <label for="campings-select">Choisir un camping</label>
         <select name="campings" id="camping-select">

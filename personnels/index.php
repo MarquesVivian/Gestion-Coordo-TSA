@@ -1,8 +1,7 @@
 <?php
-include("../navBar.html");
-session_start();
+include("../navBar.php");
 if($_SESSION["autoriser"]!="oui"){
-    header("location:login.php");
+    header("location:../securites/login.php");
     exit();
  }
 ?>

@@ -1,6 +1,6 @@
 <html>
     <?php 
-    include("../../navBar.html")
+    include("../../navBar.php")
     ?>
     <table style="border: 1px solid #333;">
     <tr>
@@ -14,7 +14,6 @@
 
                 </tr>
  <?php
- session_start();
  include ("../../DAO.php");
 $ins=$bdd->query('SELECT id_P,nom_P,prenom_P,num_Tel_P,email_P,campings.nom_Cam as nomCam,roles.libelle_R as nomR 
 FROM `personnels` 

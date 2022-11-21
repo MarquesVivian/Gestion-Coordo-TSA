@@ -1,11 +1,11 @@
 <?php
-   session_start();
+include("../navBar.php");
    @$login=$_POST["login"];
-   @$pass=($_POST["pass"]);
+   @$pass=md5($_POST["pass"]);
+   //@$pass=($_POST["pass"]);
    @$valider=$_POST["valider"];
    $erreur="";
    if(isset($valider)){
-      //include("connexion.php");
       include ("../DAO.php");
       $sel=$bdd->query("select personnels.id_P,nom_P,prenom_P,personnels.id_R,libelle_R,campings.id_Cam,campings.nom_Cam from personnels
       RIGHT JOIN roles on personnels.id_R = roles.id_R
@@ -13,7 +13,6 @@
       INNER JOIN  campings on travaille.id_Cam = campings.id_Cam
       where email_P='".$login."' and motDePasse='".$pass."' AND personnels.active_P = 1 limit 1");
       $tab=$sel->fetchAll();
-      var_dump($tab);
       if(count($tab)>0){
          $_SESSION["Personnel"]["prenom"]=ucfirst(strtolower($tab[0]["prenom_P"]));
          $_SESSION["Personnel"]["nom"]=ucfirst(strtolower($tab[0]["nom_P"]));
@@ -21,15 +20,16 @@
          $_SESSION["Personnel"]["nomcamping"] = $tab[0]["nom_Cam"];
          $_SESSION["Personnel"]["idrole"] = $tab[0]["id_R"];
          $_SESSION["Personnel"]["idcamping"] = $tab[0]["id_Cam"];
-         $_SESSION["Personnel"]["autoriser"]="oui";
-         //header("location:session.php");
+         $_SESSION["autoriser"]="oui";
          header("location:../index.php");
       }
-      else
+      else{
+
          $erreur="Mauvais login ou mot de passe!";
    }
-   var_dump($_SESSION);
-   include("../navBar.html")
+   }
+   
+   
 ?>
 <!DOCTYPE html>
 <html>

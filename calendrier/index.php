@@ -7,10 +7,9 @@
 
 
     <?php
-    session_start();
 
 
-    include("../navBar.html");
+    include("../navBar.php");
 
 //Fonction qui vérifie si un chaine est bien une date sous format "YYYY-mm-dd"
     function isValid($date, $format = 'Y-m-d')
@@ -144,9 +143,9 @@ ORDER BY personnels.id_P;');
         libelle_Act,
         couleur_Act
         FROM `personnels`
-        LEFT JOIN animations ON personnels.id_P = animations.od_P 
+        LEFT JOIN animations ON personnels.id_P = animations.id_P 
         LEFT JOIN activites ON activites.id_Act = animations.id_Act
-        WHERE fk_P_An = ' . $ligneP["id_P"] . ' AND DATE(dateDebut_An) LIKE "' . $dateFormater_Ymd . '"
+        WHERE personnels.id_P = ' . $ligneP["id_P"] . ' AND DATE(dateDebut_An) LIKE "' . $dateFormater_Ymd . '"
         ORDER BY dateDebut_An;';
             $insA = $bdd->query($requetetest);
 
