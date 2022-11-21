@@ -25,14 +25,13 @@ class Personnel
 
     protected $MDP;
 
-    public function __construct($id, $nom, $prenom, $numTel, $email, $idCamping, $idRole, $identifiant, $MDP)
+    public function __construct($id, $nom, $prenom, $numTel, $email,  $idRole, $identifiant, $MDP)
     {
         $this->id = $id;
         $this->nom = $nom;
         $this->prenom = $prenom;
         $this->numTel = $numTel;
         $this->email = $email;
-        $this->idCamping = $idCamping;
         $this->idRole = $idRole;
 
         $this->identifiant = $identifiant;
@@ -201,8 +200,8 @@ class Personnel
         $iterator =0;
         $row = 4;
         while ($p = $insPersonnels->fetch()) {
-            $p["photo"] = ($p["photo"]!='') ?  $p["photo"]  :"img\\123.jpg";
-            $personnel = new Personnel($p["id_P"],$p["nom_P"],$p["prenom_P"],$p["num_Tel_P"],$p["email_P"],$p["photo"],$p["fk_Cam_P"],$p["fk_R_P"],"","");
+            $p["photo_P"] = ($p["photo_P"]!='') ?  $p["photo_P"]  :"img\\123.jpg";
+            $personnel = new Personnel($p["id_P"],$p["nom_P"],$p["prenom_P"],$p["num_Tel_P"],$p["email_P"],$p["photo_P"],$p["fk_R_P"],"","a");
             $personnels[$iterator] = $personnel;
             if($row == 3){
                 echo"</div>
@@ -225,7 +224,7 @@ class Personnel
     
                 <div class='col'>
                     <div class='card' style='width: 18rem;'>
-                        <img src='".$p["photo"]."' class='card-img-top' style='height: 170px;/*1*/ position: relative;/*2*/ overflow: hidden;/*3*/ top: 10px; clip-path:ellipse(30% 50%);' alt='...'>
+                        <img src='".$p["photo_P"]."' class='card-img-top' style='height: 170px;/*1*/ position: relative;/*2*/ overflow: hidden;/*3*/ top: 10px; clip-path:ellipse(30% 50%);' alt='...'>
                         <div class='card-body text-center'>
                             <h5 class='card-title border border-primary'>".$p["nom_P"]."</h5>
                             <h5 class='card-title border border-primary'>".$p["prenom_P"]."</h5>
@@ -262,9 +261,9 @@ class Personnel
 //fonction qui retourne un tableau de personnel (TOUS)
 public function toutPersonnels(){
     include "../DAO.php";
-    $insPersonnels = $bdd->query('SELECT `id_P`,`nom_P`,`prenom_P`,`num_Tel_P`,`email_P`,`photo`,`fk_Cam_P`,`fk_R_P` 
+    $insPersonnels = $bdd->query('SELECT `id_P`,`nom_P`,`prenom_P`,`num_Tel_P`,`email_P`,`photo_P`,`personnels`.`id_R` as fk_R_P 
     FROM `personnels` 
-    WHERE `active` = 1 
+    WHERE `active_P` = true 
     ORDER BY personnels.id_P;');
 
     $this->setTableauPersonnels($insPersonnels);
@@ -274,10 +273,9 @@ public function toutPersonnels(){
 //fonction qui retourne un tableau de personnel en fonction du camping du RA
 public function touPersonnels($idCamp){
     include "../DAO.php";
-    $insPersonnels = $bdd->query('SELECT `id_P`,`nom_P`,`prenom_P`,`num_Tel_P`,`email_P`,`photo`,`fk_Cam_P`,`fk_R_P` 
+    $insPersonnels = $bdd->query('SELECT `id_P`,`nom_P`,`prenom_P`,`num_Tel_P`,`email_P`,`photo_P`,`fk_R_P` 
     FROM `personnels`
      WHERE `active` = 1 
-     AND `fk_Cam_P` ='.$idCamp.' 
      ORDER BY personnels.id_P;');
 
     $this->setTableauPersonnels($insPersonnels);

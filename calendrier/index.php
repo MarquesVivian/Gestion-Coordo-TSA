@@ -59,7 +59,7 @@
         //on fait une requete pour avoir tout les personnels valide et qui appartienne au bon camping
         $insP = $bdd->query('SELECT id_P,nom_P,prenom_P
 FROM `personnels`
-WHERE `active` = 1 
+WHERE `active_P` = 1 
 ORDER BY personnels.id_P;');
 
 
@@ -141,11 +141,11 @@ ORDER BY personnels.id_P;');
         dateDebut_An,
         dateFin_An,
         TIMESTAMPDIFF(MINUTE, dateDebut_An, dateFin_An) as dureeActivite,
-        libelle_Ac,
-        couleur_Ac
+        libelle_Act,
+        couleur_Act
         FROM `personnels`
-        LEFT JOIN animations ON personnels.id_P = animations.fk_P_An 
-        LEFT JOIN activites ON activites.id_Ac = animations.fk_Ac_An
+        LEFT JOIN animations ON personnels.id_P = animations.od_P 
+        LEFT JOIN activites ON activites.id_Act = animations.id_Act
         WHERE fk_P_An = ' . $ligneP["id_P"] . ' AND DATE(dateDebut_An) LIKE "' . $dateFormater_Ymd . '"
         ORDER BY dateDebut_An;';
             $insA = $bdd->query($requetetest);

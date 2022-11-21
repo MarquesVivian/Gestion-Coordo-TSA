@@ -1,11 +1,14 @@
 <?php
-include("../navBar.html")
-//$test = new Personnel();
-//<link rel="stylesheet" href="style.css">
+include("../navBar.html");
+session_start();
+if($_SESSION["autoriser"]!="oui"){
+    header("location:login.php");
+    exit();
+ }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -25,9 +28,8 @@ include("../navBar.html")
 
 
             <?php
-            session_start();
             include("personnels.php");
-            $test = new Personnel("a", "a", "a", "a", "a", "a", 1, 1);
+            $test = new Personnel("a", "a", "a", "a", "a", "a", 1,"mdp");
             $test->creationPersonnel();
             $test->toutPersonnels();
             
