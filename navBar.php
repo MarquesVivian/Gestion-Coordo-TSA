@@ -1,4 +1,5 @@
 <?php
+include("personnels/personnels.php");
 session_start();
 if(empty($_SESSION["autoriser"])){
   $_SESSION["autoriser"] = "non";
@@ -37,11 +38,17 @@ if(empty($_SESSION["autoriser"])){
         <li class="nav-item">
           <a class="nav-link" href="../securites/deconnexion">Deconnexion</a>
         </li>';
+        $perso = $_SESSION["Personnel"];
+        $nomPersonnel = $perso->getNom();
+        echo '<li class="nav-item">'.$nomPersonnel. '</li>';
       }
+      
+      
       ?>
     </ul>
   </div>
 </nav>
+
 <?php
-var_dump($_SESSION);
+//var_dump($_SESSION);
 ?>
