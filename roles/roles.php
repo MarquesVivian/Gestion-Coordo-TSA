@@ -1,119 +1,92 @@
 <?php
-class Camping{
+class Role
+{
     protected $id;
 
-    protected $nom;
+    protected $libelle;
 
     protected $actif;
 
-    public function __construct($id, $nom, $actif)
+
+    public function __construct($id, $libelle, $actif)
     {
         $this->id = $id;
-        $this->nom = $nom;
+        $this->libelle = $libelle;
         $this->actif = $actif;
     }
 
-
-
     /**
-     * Get the value of actif
-     */ 
-    public function getActifCamping()
+     * Get the value of id
+     */
+    public function getIdRole()
     {
-        return $this->actif;
-    }
-
-    /**
-     * Set the value of actif
-     *
-     * @return  self
-     */ 
-    public function setActifCamping($actif)
-    {
-        $this->actif = $actif;
-
-        return $this;
+        return $this->id;
     }
 
     /**
      * Get the value of nom
-     */ 
-    public function getNomCamping()
+     */
+    public function getLibelleRole()
     {
-        return $this->nom;
+        return $this->libelle;
     }
 
     /**
      * Set the value of nom
      *
      * @return  self
-     */ 
-    public function setNomCamping($nom)
+     */
+    public function setLibelleRole($libelle)
     {
-        $this->nom = $nom;
+        $this->libelle = $libelle;
 
         return $this;
     }
 
-    /**
-     * Get the value of id
-     */ 
-    public function getIdCamping()
-    {
-        return $this->id;
+    public function getActifRole(){
+        return $this->actif;
     }
 
-    /**
-     * Set the value of id
-     *
-     * @return  self
-     */ 
-    public function setId($id)
-    {
-        $this->id = $id;
 
-        return $this;
-    }
-
-    public function setTableauCampings()
+    public function setTableauRole()
     {
         require("../DAO.php");
 
-        $Campings = $bdd->query('SELECT * FROM `campings`;');
+        $insR = $bdd->query('SELECT * FROM `roles`;');
         $i = 0;
-        $tableauCampings;
-        while ($camping = $Campings->fetch()) {
-            $c = new Camping($camping["id_Cam"],$camping["nom_Cam"],$camping["active_Cam"]); 
-            $tableauCampings[$i] = $c;
+        $tableauRole;
+        while ($role = $insR->fetch()) {
+            $r = new Role($role["id_R"],$role["libelle_R"],$role["active_R"]); 
+            $tableauRole[$i] = $r;
             $i++;
         }
 
-        return $tableauCampings;
+        return $tableauRole;
 
     }
 
-    public function BtnModalCamping($camping,$titre,$class,$id)
+    public function BtnModalRole($role,$titre,$class,$id)
     {
         $btn ="";
-        if($camping == "create"){
+        if($role == "create"){
             $btn = '
             <!-- Button trigger modal -->
             <br>
             <div class="row justify-content-md-center ">
-                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$camping.$id.'">
+                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$role.$id.'">
                     '.$titre.'
                 </button>
             </div>';
-        }else if($camping == "update"){
+        }else if($role == "update"){
             $btn = '
             <!-- Button trigger modal -->
-                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$camping.$id.'">
+                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$role.$id.'">
                     '.$titre.'
                 </button>';
-        }else if($camping == "delete"){
+        }else if($role == "delete"){
             $btn = '
             <!-- Button trigger modal -->
-                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$camping.$id.'">
+                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$role.$id.'">
                     '.$titre.'
                 </button>';
         }
@@ -121,18 +94,18 @@ class Camping{
     }
 
 
-    public function ModalCamping($camping,$titre,$id,$libelle)
+    public function ModalRole($role,$titre,$id,$libelle)
     {
         $modal= 
         '<!-- Modal -->
         
-        <div class="modal fade" id="exampleModal'.$camping.$id.'" tabindex="-1" aria-labelledby="exampleModalLabel'.$camping.'" aria-hidden="true">
+        <div class="modal fade" id="exampleModal'.$role.$id.'" tabindex="-1" aria-labelledby="exampleModalLabel'.$role.'" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
 
                         <div class="col">
-                            <h5 class="modal-title text-center" id="exampleModalLabel'.$camping.'">'.$titre.'</h5>
+                            <h5 class="modal-title text-center" id="exampleModalLabel'.$role.'">'.$titre.'</h5>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -140,7 +113,7 @@ class Camping{
                     <div class="modal-body">
                     <form enctype="multipart/form-data" action="crud" method="post">
                         ' .
-            $this->formulaireCamping($camping,$id,$libelle)
+            $this->formulaireRole($role,$id,$libelle)
             . '
                     
                 </div>
@@ -152,20 +125,20 @@ class Camping{
         return $modal;
     }
 
-    public function formulaireCamping($camping,$id,$libelle)
+    public function formulaireRole($role,$id,$libelle)
     {
 
-        switch ($camping) {
+        switch ($role) {
             case 'create':
-                $formulaireCamping = '
-                <input type="hidden" name="table" value="campings"/>
+                $formulaireRole = '
+                <input type="hidden" name="table" value="roles"/>
                 <input type="hidden" name="exec" value="create"/>
                 <div class="row">
                     <div class="col-3 text-center">
                         Libelle : 
                     </div>
                     <div class=" col">
-                        <input class="align-center" type="text" name="nom_Cam" placeholder="Libelle"/>
+                        <input class="align-center" type="text" name="libelle_R" placeholder="Libelle"/>
                     </div>
                 </div>
                 </div>
@@ -177,8 +150,8 @@ class Camping{
             
             
             case 'update':
-                $formulaireCamping = '
-                <input type="hidden" name="table" value="campings"/>
+                $formulaireRole = '
+                <input type="hidden" name="table" value="roles"/>
                 <input type="hidden" name="exec" value="update"/>
                 <input type="hidden" name="id_R" value="'.$id.'"/>
                 <div class="row">
@@ -186,7 +159,7 @@ class Camping{
                         Libelle : 
                     </div>
                     <div class=" col">
-                        <input class="align-center" type="text" name="nom_Cam" value="'.$libelle.'"/>
+                        <input class="align-center" type="text" name="libelle_R" value="'.$libelle.'"/>
                     </div>
                 </div>
                 </div>
@@ -197,15 +170,15 @@ class Camping{
                  break;
 
                 case 'delete':
-                $formulaireCamping = '
+                $formulaireRole = '
                 
-                <input type="hidden" name="table" value="campings"/>
+                <input type="hidden" name="table" value="roles"/>
                 <input type="hidden" name="exec" value="delete"/>
                 <input type="hidden" name="id_R" value="'.$id.'"/>
-                <input type="hidden" name="nom_Cam" value="'.$libelle.'"/>
+                <input type="hidden" name="libelle_R" value="'.$libelle.'"/>
                 <div class="row">
                     <div class="col text-center">
-                    etes vous sur de vouloir supprimer le camping : '.$libelle.' ? 
+                    etes vous sur de vouloir supprimer le role : '.$libelle.' ? 
                     </div>
                 </div>
                 </div>
@@ -216,9 +189,7 @@ class Camping{
                     break;
         }
 
-        return $formulaireCamping;
+        return $formulaireRole;
     }
+
 }
-
-
-?>

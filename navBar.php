@@ -1,8 +1,11 @@
 <?php
 include("personnels/personnels.php");
+include("roles/roles.php");
+include("campings/campings.php");
+include("activites/activites.php");
 session_start();
-if(empty($_SESSION["autoriser"])){
-  $_SESSION["autoriser"] = "non";
+if(empty($_SESSION["connecter"])){
+  $_SESSION["connecter"] = "non";
 }
 
 ?>
@@ -21,14 +24,25 @@ if(empty($_SESSION["autoriser"])){
       <li class="nav-item">
         <a class="nav-link" href="../personnels/">personnels</a>
       </li>
+      <?php
+      if ($_SESSION["connecter"] == "oui" && !empty($_SESSION["Personnel"])) {
+        if($_SESSION["Personnel"]->getRole()->getIdRole() == 5){
+          echo '
+        <li class="nav-item">
+          <a class="nav-link" href="../roles/">roles</a>
+        </li>';
+        }
+      }
+      ?>
       <li class="nav-item">
-        <a class="nav-link" href="../roles/">roles</a>
-      </li>
+          <a class="nav-link" href="../campings/">Campings</a>
+        </li>
+      
       <li class="nav-item">
-        <a class="nav-link" href="../activites.php">activites</a>
+        <a class="nav-link" href="../activites">activites</a>
       </li>
       <?php
-      if ($_SESSION["autoriser"] != "oui") {
+      if ($_SESSION["connecter"] != "oui") {
         echo '
         <li class="nav-item">
           <a class="nav-link" href="../securites/login">Connexion</a>

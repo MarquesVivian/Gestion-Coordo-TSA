@@ -1,0 +1,21 @@
+body{
+    background-color: #fff;
+}
+
+.arrondi{
+    border-radius: 2.25rem!important;
+}
+
+.arrondi-top {
+    border-top-left-radius: 2.25rem!important;
+    border-top-right-radius: 2.25rem!important;
+}
+
+.img-card-perso{
+    left: 55px;
+    height: 210px;
+    width: 180px;
+    position: relative;
+    overflow: hidden;
+    clip-path: ellipse(49% 40%);
+}

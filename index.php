@@ -1,6 +1,6 @@
 <?php 
 include("navBar.php");
-if($_SESSION["autoriser"]!="oui"){
+if($_SESSION["connecter"]!="oui"){
     header("Location: http://testcoordo/securites/login");
     exit();
  }

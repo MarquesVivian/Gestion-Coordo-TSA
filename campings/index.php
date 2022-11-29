@@ -1,7 +1,5 @@
-
-    <?php
+<?php
     include("../navBar.php");
-
     if ($_SESSION["connecter"] != "oui") {
         header("Location: http://testcoordo/securites/login");
             exit();
@@ -21,15 +19,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roles</title>
+    <title>Campings</title>
 </head>
 
 <body>
     <div class="container-fluid">
         <?php
-    echo $_SESSION["Personnel"]->getRole()->BtnModalRole("create","Création d'un Role","btn-primary col-lg-5","");
-    echo $_SESSION["Personnel"]->getRole()->ModalRole("create","Création d'un Role","","");
-
+    echo $_SESSION["Personnel"]->getAllCampings()[0]->BtnModalCamping("create","Création d'un Camping","btn-primary col-lg-5","");
+    echo $_SESSION["Personnel"]->getAllCampings()[0]->ModalCamping("create","Création d'un Camping","","");
     ?>
 
     <div class="position-absolute border border-3 border-primary rounded-circle" style="right: 13px ; top: 100px">
@@ -52,27 +49,28 @@
         <tbody>
 <?php 
 
-$tableauRole = $_SESSION["Personnel"]->getRole()->setTableauRole();
+$tableauCampings = $_SESSION["Personnel"]->getCamping(1)->setTableauCampings();
 
-for ($i=0; $i < count($tableauRole) ; $i++) { 
+
+for ($i=0; $i < count($tableauCampings) ; $i++) { 
     echo '  <tr class="">
-                <td scope="row" class="col-md-1 text-center">'.$tableauRole[$i]->getIdRole().'</td>
-                <td scope="row" class="col-md-6 text-center">'.$tableauRole[$i]->getLibelleRole().'</td>
-                <td scope="row" class="col-md-6 text-center">'.$tableauRole[$i]->getActifRole().'</td>
+                <td scope="row" class="col-md-1 text-center">'.$tableauCampings[$i]->getIdCamping().'</td>
+                <td scope="row" class="col-md-6 text-center">'.$tableauCampings[$i]->getNomCamping().'</td>
+                <td scope="row" class="col-md-6 text-center">'.$tableauCampings[$i]->getActifCamping().'</td>
                 
                 <td scope="row" class="col-sm-1 text-center">
                         '.
 
-                        $_SESSION["Personnel"]->getRole()->BtnModalRole("update","Modifier","btn-info",$tableauRole[$i]->getIdRole()).
-                        $_SESSION["Personnel"]->getRole()->ModalRole("update","Modifier un role",$tableauRole[$i]->getIdRole(),$tableauRole[$i]->getLibelleRole())
+                        $tableauCampings[$i]->BtnModalCamping("update","Modifier","btn-info",$tableauCampings[$i]->getIdCamping()).
+                        $tableauCampings[$i]->ModalCamping("update","Modifier un role",$tableauCampings[$i]->getIdCamping(),$tableauCampings[$i]->getNomCamping())
 
                         .'
                 </td>
                 <td scope="row" class="col-sm-1 text-center">
                     '. 
                         
-                        $_SESSION["Personnel"]->getRole()->BtnModalRole("delete","Suprimer","btn-danger",$tableauRole[$i]->getIdRole()).
-                        $_SESSION["Personnel"]->getRole()->ModalRole("delete","Supprimer un role",$tableauRole[$i]->getIdRole(),$tableauRole[$i]->getLibelleRole())
+                    $tableauCampings[$i]->BtnModalCamping("delete","Suprimer","btn-danger",$tableauCampings[$i]->getIdCamping()).
+                    $tableauCampings[$i]->ModalCamping("delete","Supprimer un role",$tableauCampings[$i]->getIdCamping(),$tableauCampings[$i]->getNomCamping())
                     .
                      '
                 </td>

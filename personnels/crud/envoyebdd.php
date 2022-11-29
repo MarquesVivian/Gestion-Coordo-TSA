@@ -111,7 +111,7 @@ function VerifRequest(){
     </style>
     <title>Redirection en html</title>
     <div class="erreur"><?php echo CreatePersonnel() ?></div>
-    <meta http-equiv="refresh" content="1; URL=http://testcoordo/personnels/">
+    <meta http-equiv="refresh" content="100; URL=http://testcoordo/personnels/">
 </head>
 
 </html>

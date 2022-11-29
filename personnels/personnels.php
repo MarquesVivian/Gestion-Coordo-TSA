@@ -13,17 +13,12 @@ class Personnel
 
     protected $Campings;
 
-    protected $idRole;
-
-    protected $nomRole;
-
     protected $photo;
 
-    protected array $cardsPersonnels;
+    protected $role;
 
-    public array $personnelsArray;
 
-    public function __construct($id, $nom, $prenom, $photo, $numTel, $email,  $idRole, $arrayCampings, $nomRole)
+    public function __construct($id, $nom, $prenom, $photo, $numTel, $email, $arrayCampings, $role)
     {
         $this->id = $id;
         $this->nom = $nom;
@@ -31,9 +26,8 @@ class Personnel
         $this->photo = $photo;
         $this->numTel = $numTel;
         $this->email = $email;
-        $this->idRole = $idRole;
         $this->Campings = $arrayCampings;
-        $this->nomRole = $nomRole;
+        $this->role = $role;
     }
 
     #region GetteurSetteur
@@ -43,18 +37,6 @@ class Personnel
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set the value of id
-     *
-     * @return  self
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     /**
@@ -140,9 +122,19 @@ class Personnel
     /**
      * Get the value of Campings
      */
-    public function getCampings()
+    public function getAllCampings()
     {
         return $this->Campings;
+    }
+
+    public function getCamping($i)
+    {
+        return $this->Campings[$i];
+    }
+
+    public function getCountCampings()
+    {
+        return count($this->Campings);
     }
 
     /**
@@ -150,45 +142,14 @@ class Personnel
      *
      * @return  self
      */
-    public function setCampings($Campings)
-    {
-        $this->Campings = $Campings;
 
-        return $this;
+
+
+    public function getRole(){
+        return $this->role;
     }
 
-    /**
-     * Get the value of idRole
-     */
-    public function getIdRole()
-    {
-        return $this->idRole;
-    }
 
-    /**
-     * Set the value of idRole
-     *
-     * @return  self
-     */
-    public function setIdRole($idRole)
-    {
-        $this->idRole = $idRole;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of cardsPersonnels
-     */
-    public function getCardsPersonnels()
-    {
-        return $this->cardsPersonnels;
-    }
-
-    public function getNomRole()
-    {
-        return $this->nomRole;
-    }
     #endregion
 
     /**
@@ -209,9 +170,7 @@ class Personnel
             if ($p["photo_P"] == '' || !file_exists($p["photo_P"])) {
                 $p["photo_P"] = "img/profile-user.png";
             }
-            
-            //$p["photo_P"] = ($p["photo_P"] != '') ?  $p["photo_P"]  : "img\\123.jpg";
-
+        
             $insP = $bdd->query('SELECT * FROM `travaille` INNER JOIN `campings` on `travaille`.`id_Cam` = `campings`.`id_Cam` WHERE `id_P` = ' . $p["id_P"] . ';');
             $i = 0;
             $arrayCampings;
@@ -221,63 +180,71 @@ class Personnel
                 $i++;
             }
 
+            $new_tel = "";
+            if ($p["num_Tel_P"] != null && $p["num_Tel_P"] != "") {
+                    for ($i=0; $i < strlen($p["num_Tel_P"]); $i+=2) { 
+                        $new_tel .= " ".substr($p["num_Tel_P"],$i,2);
+                    }
+            }else{
+                $new_tel = "N° tel";
+            }
+            $p["num_Tel_P"] = $new_tel;
+            $role = new Role($p["id_R"],$p["libelle_R"],$p["active_R"]);
 
-            $personnel = new Personnel($p["id_P"], $p["nom_P"], $p["prenom_P"], $p["photo_P"], $p["num_Tel_P"], $p["email_P"], $p["id_R"], $arrayCampings, $p["libelle_R"]);
-            $this->personnelsArray[$personnel->getId()] = $personnel;
-            //var_dump( $this->personnelsArray);
+            $personnel = new Personnel($p["id_P"], $p["nom_P"], $p["prenom_P"], $p["photo_P"], $p["num_Tel_P"], $p["email_P"], $arrayCampings, $role);
 
-            $personnels[$iterator] = $personnel;
             if ($row == 3) {
                 $card .= "</div>
-                    <div class='row' style='margin-bottom: 20px;'>";
+                    <div class='row' style='margin: 20px 20px 20px 20px;'>";
 
                 $row = -1;
             } elseif ($row == 4) { //premier passage
                 $card = "
-                <div class='row' style='margin-bottom: 20px;'>";
+                <div class='row' style='margin: 20px 20px 20px 20px;'>";
                 $row = -1;
             }
-            $personnel->setNumTel($p["num_Tel_P"]  != "" || $p["num_Tel_P"] != null ? $p["num_Tel_P"] : " ");
+
 
             $bgImgCard ="";
-            if ($personnel->getIdRole() == 1) {
+            if ($personnel->role->getIdRole() == 1) {
                 $bgImgCard = "text-dark bg-info";
-            }else if ($personnel->getIdRole() == 2) {
+            }else if ($personnel->role->getIdRole() == 2) {
                 $bgImgCard = "text-white bg-danger";
-            }else if ($personnel->getIdRole() == 3) {
+            }else if ($personnel->role->getIdRole() == 3) {
                 $bgImgCard = "";
-            }else if ($personnel->getIdRole() == 4) {
+            }else if ($personnel->role->getIdRole() == 4) {
                 $bgImgCard = "text-white bg-success";
-            }else if ($personnel->getIdRole() == 5) {
-                $bgImgCard = "text-dark bg-info";
+            }else if ($personnel->role->getIdRole() == 5) {
+                $bgImgCard = "text-white bg-dark";
             }
 
 
             $card .= "<div class='col'>
                         <a href='../personnels/#' style='text-decoration : none; color : black'>
-                            <div class='card' style='width: 18rem;'>
-                                <div class='".$bgImgCard."'>
-                                    <img src='" . $p["photo_P"] . "' class='card-img-top text-dark bg-light ' style='left: 55px;height: 210px;width: 180px;/*1*/position: relative;/*2*/overflow: hidden;/*3*/clip-path: ellipse(49% 40%);' alt='...'>
+                            <div class='card arrondi' style='width: 18rem; '>
+                            
+                                <div class='".$bgImgCard." arrondi-top'>
+                                <h5 class='text-center'>".$personnel->role->getLibelleRole()."  </h5>
+                                    <img src='" . $p["photo_P"] . "' class='card-img-top text-dark bg-light img-card-perso ' alt='...'>
                                     </div>
                                     <div class='card-body text-center'>
 
                                         <h5 class='card-title border border-primary'>" . $personnel->getNom() . "</h5>
                                         <h5 class='card-title border border-primary'>" . $personnel->getPrenom() . "</h5>
-                                        <h5 class='card-title border border-primary'>" . $personnel->getEmail() . "</h5>
+                                        <h5 class='card-title border border-primary'>" . str_replace("@","<br>@",$personnel->getEmail())  . "</h5>
                                         <h5 class='card-title border border-primary'>" . $personnel->getNumTel() . "</h5>
                                         <form  action='crud/envoyebdd.php' method='post'>
 
                                             <input type='hidden' name='table' value='personnels'/>";
 
-            if (in_array($_SESSION['Personnel']->getIdRole(), array(2, 4, 5))) {
+            if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(2, 4, 5))) {
                             $card .= "  <input type='hidden' name='exec' value='modif'/>
                                         <input type='submit' class='btn btn-primary' value='Modifier'>";
-                if (in_array($_SESSION['Personnel']->getIdRole(), array(5))) {
+                if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(4,5))) {
                             $card .="   <input type='hidden' name='exec' value='suppression'/>
                                         <input type='submit' class='btn btn-danger' value='Suprim'>";
                 }
             }
-            //var_dump($personnel);
             $card .= "                  <input type='hidden' name='Personnel' value='" . $personnel->getId() . "'/>
                                     </form>
                                 </div>
@@ -287,7 +254,6 @@ class Personnel
 
             $iterator++;
             $row++;
-            $this->cardsPersonnels[$personnel->getId()] = $card;
         }
         $card .= "</div>";
         echo $card;
@@ -300,10 +266,8 @@ class Personnel
     public function toutPersonnels()
     {
         include "../DAO.php";
-        $insPersonnels = $bdd->query('SELECT `personnels`.`id_P`, `nom_P`, `prenom_P`, `photo_P`, `num_Tel_P`, `email_P`, `personnels`.`id_R`, `libelle_R` from `personnels`
+        $insPersonnels = $bdd->query('SELECT `personnels`.`id_P`, `nom_P`, `prenom_P`, `photo_P`, `num_Tel_P`, `email_P`, `personnels`.`id_R`, `libelle_R`,`active_R` from `personnels`
         RIGHT JOIN `roles` on `personnels`.`id_R` = `roles`.`id_R`
-        INNER JOIN `travaille` ON `personnels`.`id_P` = `travaille`.`id_P`
-        INNER JOIN `Campings` ON `travaille`.`id_Cam` = `Campings`.`id_Cam`
         WHERE `personnels`.`active_P` = 1
         GROUP BY `personnels`.`id_P`
         ORDER BY `personnels`.`id_R` DESC;');
@@ -340,10 +304,12 @@ class Personnel
     {
         echo '
         <!-- Button trigger modal -->
-        <button type="button" id="btn-Test" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            +
+        <br>
+        <div class="row justify-content-md-center ">
+        <button type="button" id="btn-Test" class="btn btn-primary col-lg-5" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Ajouter un personnel
         </button>
-
+        </div>
         <!-- Modal -->
         <form enctype="multipart/form-data" action="crud/envoyebdd.php" method="post">
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -422,7 +388,7 @@ class Personnel
                 MDP  :
             </div>
             <div class=" col">
-                <input type="password" name="mdp">
+                <input type="password" name="mdp" placeholder="Mot De Passe">
             </div>
         </div>
         <br>
@@ -477,9 +443,10 @@ class Personnel
     public function ValueCampings()
     {
         $cam = 1;
-        $value = $_SESSION["Personnel"]->getCampings()["id_Cam"][0];
-        while ($cam < count($_SESSION["Personnel"]->getCampings()["id_Cam"])) {
-            $value .= ', ' . $_SESSION["Personnel"]->getCampings()["id_Cam"][$cam];
+        
+        $value = $_SESSION["Personnel"]->getCamping(0)->getIdCamping();
+        while ($cam < count($_SESSION["Personnel"]->getAllCampings())) {
+            $value .= ', ' . $_SESSION["Personnel"]->getCamping($cam)->getIdCamping();
             $cam++;
         }
         return $value;
@@ -510,13 +477,13 @@ class Personnel
     {
         $value = "";
 
-        switch ($_SESSION["Personnel"]->getIdRole()) {
+        switch ($_SESSION["Personnel"]->getRole()->getIdRole()) {
 
             case 4:
                 $value = "1, 2";
                 break;
             case 5:
-                $value = "1, 2, 3, 4";
+                $value = "1, 2, 3, 4,5";
                 break;
         }
 

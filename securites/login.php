@@ -1,15 +1,16 @@
 <?php
 include("../navBar.php");
 @$login = $_POST["login"];
-//@$pass = md5($_POST["pass"]);
-@$pass = $_POST["pass"];
+@$pass = md5($_POST["pass"]);
+//@$pass = $_POST["pass"];
 @$valider = $_POST["valider"];
 $erreur = "";
+var_dump(@$pass);
 if (isset($valider)) {
    include("../DAO.php");
-   $sel = $bdd->query('SELECT `personnels`.`id_P`, `nom_P`, `prenom_P`, `num_Tel_P`, `email_P`, `personnels`.`id_R`, `libelle_R` from `personnels`
+   $sel = $bdd->query('SELECT `personnels`.`id_P`, `nom_P`, `prenom_P`,`photo_P`, `num_Tel_P`, `email_P`, `personnels`.`id_R`, `libelle_R`, `active_R` from `personnels`
    RIGHT JOIN `roles` on `personnels`.`id_R` = `roles`.`id_R`
-   where `email_P`="' . $login . '" AND `motDePasse`="' . $pass . '" AND `personnels`.`active_P` = 1 limit 1');
+   where `email_P`="' . $login . '" AND `motDePasse`LIKE"' . $pass . '" AND `personnels`.`active_P` = 1 limit 1');
 
    $tab = $sel->fetchAll();
    if (count($tab) > 0) {
@@ -17,7 +18,7 @@ if (isset($valider)) {
 
       switch ($tab[0]["id_R"]) {
          case '5':
-            $insP = $bdd->query('SELECT * FROM `Campings` WHERE `active_Cam` = true;');
+            $insP = $bdd->query('SELECT * FROM `campings` WHERE `active_Cam` = true;');
             break;
 
          default:
@@ -27,14 +28,18 @@ if (isset($valider)) {
 
       $i = 0;
       $arrayCampings;
+      
       while ($camPerso = $insP->fetch()) {
-         $arrayCampings["id_Cam"][$i] = $camPerso["id_Cam"];
-         $arrayCampings["nom_Cam"][$i] = $camPerso["nom_Cam"];
+
+
+
+         $camp = new Camping($camPerso["id_Cam"],$camPerso["nom_Cam"],$camPerso["active_Cam"]);
+         $arrayCampings[$i] = $camp;
          $i++;
       }
-      $_SESSION["Personnel"] = new Personnel($tab[0]["id_P"], $tab[0]["nom_P"], $tab[0]["prenom_P"], $tab[0]["photo_P"], $tab[0]["num_Tel_P"], $tab[0]["email_P"], $tab[0]["id_R"], $arrayCampings, $tab[0]["libelle_R"]);
-      $_SESSION["autoriser"] = "oui";
-      $_SESSION["camp"] = $arrayCampings["id_Cam"][0];
+      $role = new Role($tab[0]["id_R"],$tab[0]["libelle_R"],$tab[0]["active_R"]);
+      $_SESSION["Personnel"] = new Personnel($tab[0]["id_P"], $tab[0]["nom_P"], $tab[0]["prenom_P"], $tab[0]["photo_P"], $tab[0]["num_Tel_P"], $tab[0]["email_P"], $arrayCampings, $role);
+      $_SESSION["connecter"] = "oui";
       header("location:../index.php");
    } else {
 
