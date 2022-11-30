@@ -92,28 +92,28 @@ class Camping{
 
     }
 
-    public function BtnModalCamping($camping,$titre,$class,$id)
+    public function BtnModalCamping($crud,$titre,$class,$id)
     {
         $btn ="";
-        if($camping == "create"){
+        if($crud == "create"){
             $btn = '
             <!-- Button trigger modal -->
             <br>
             <div class="row justify-content-md-center ">
-                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$camping.$id.'">
+                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$crud.$id.'">
                     '.$titre.'
                 </button>
             </div>';
-        }else if($camping == "update"){
+        }else if($crud == "update"){
             $btn = '
             <!-- Button trigger modal -->
-                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$camping.$id.'">
+                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$crud.$id.'">
                     '.$titre.'
                 </button>';
-        }else if($camping == "delete"){
+        }else if($crud == "delete"){
             $btn = '
             <!-- Button trigger modal -->
-                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$camping.$id.'">
+                <button type="button" id="btn-Test" class="btn '.$class.'" data-bs-toggle="modal" data-bs-target="#exampleModal'.$crud.$id.'">
                     '.$titre.'
                 </button>';
         }
@@ -121,18 +121,18 @@ class Camping{
     }
 
 
-    public function ModalCamping($camping,$titre,$id,$libelle)
+    public function ModalCamping($crud,$titre,$id,$libelle)
     {
         $modal= 
         '<!-- Modal -->
         
-        <div class="modal fade" id="exampleModal'.$camping.$id.'" tabindex="-1" aria-labelledby="exampleModalLabel'.$camping.'" aria-hidden="true">
+        <div class="modal fade" id="exampleModal'.$crud.$id.'" tabindex="-1" aria-labelledby="exampleModalLabel'.$crud.'" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
 
                         <div class="col">
-                            <h5 class="modal-title text-center" id="exampleModalLabel'.$camping.'">'.$titre.'</h5>
+                            <h5 class="modal-title text-center" id="exampleModalLabel'.$crud.'">'.$titre.'</h5>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
@@ -140,7 +140,7 @@ class Camping{
                     <div class="modal-body">
                     <form enctype="multipart/form-data" action="crud" method="post">
                         ' .
-            $this->formulaireCamping($camping,$id,$libelle)
+            $this->formulaireCamping($crud,$id,$libelle)
             . '
                     
                 </div>
@@ -152,10 +152,10 @@ class Camping{
         return $modal;
     }
 
-    public function formulaireCamping($camping,$id,$libelle)
+    public function formulaireCamping($crud,$id,$libelle)
     {
 
-        switch ($camping) {
+        switch ($crud) {
             case 'create':
                 $formulaireCamping = '
                 <input type="hidden" name="table" value="campings"/>

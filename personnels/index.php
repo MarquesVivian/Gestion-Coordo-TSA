@@ -27,39 +27,49 @@
         ?>
         <div class='container border border-secondary' style="
     padding: 0px">
-
             <?php
-                        if(in_array($_SESSION['Personnel']->getRole()->getIdRole(),array(2,4,5))){
-                            $perso->ModalCreationPerso();
-                        }
-            
+            // si c'est un responsable d'animation/ un coordinateur ou un adminTSA on laisse un bouton création personne
+            if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(2, 4, 5))) {
+                echo $perso->BtnModalPerso("create","Création d'un Personnel","btn-primary col-lg-5","");
+                echo $perso->ModalPerso("create","Création d'un Personnel","","","","","","","");
+                //$perso->ModalCreationPerso();
+            }
+            //si un choix a déjà été fait
             if (!empty($_POST["campings"])) {
                 $_SESSION["camp"] = $_POST["campings"];
             }
-                if (in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array(1, 2, 3))) {
-                    $perso->toutPersonnelsCamping($_SESSION["camp"]);
-                }elseif(in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(4))){
-                    
-                    echo'
-                    <form action="" method="post">
-                    <div class="row">
-                        <div class="col text-center">
-                            <label for="campings-select">Camping </label> 
-                            '.$perso->ChoixCampingsCreationPerso().'
-                            <button type="submit" class="btn btn-primary">Envoyer</button>
-                        </div>
+            //si c'est un animateur / un responsable d'animation / un admin Camping
+            if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(1, 2, 3))) {
+                $perso->toutPersonnelsCamping($_SESSION["camp"]);
+            } elseif (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(4))) {//si c'est un coordo on lui met un choix de camping
+                echo '<br><br>
+                <form action="" method="post">
+                <div class="row">
+                    <div class="col text-center">
+                        <label for="campings-select">Camping </label> ';
+
+                           echo $perso->ChoixCampingsCreationPerso();
+
+                echo'
+                        <button type="submit" class="btn btn-primary">Envoyer</button>
                     </div>
-                    </form>
-                    <br><br>';
-                    $perso->toutPersonnelsCamping($_SESSION["camp"]);
-                }elseif(in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(5))){
-                
-                    $perso->toutPersonnels();
-                }        
-           ?>
+                </div>
+                </form>
+                <br><br>';
+                echo "<div class='row justify-content-md-center '>
+                    <div class='text-center col-lg-5 border border-3 border-primary'><h4>Vous etes Actuellement sur le camping : <br>".  $perso->getNomCampingChoisi($_SESSION["camp"])."</h4></div>
+                    </div>";
+
+
+                $perso->toutPersonnelsCamping($_SESSION["camp"]);
+            } elseif (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(5))) {//si c'est un admin TSA
+
+                $perso->toutPersonnels();
+            }
+            ?>
 
 
         </div>
-<br>
+        <br>
 
     </body>

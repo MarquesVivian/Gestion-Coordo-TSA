@@ -72,15 +72,15 @@ class Activite{
         return $this->actif;
     }
 
-    public function setTableauActivites()
+    public function setTableauActivites($camp)
     {
         require("../DAO.php");
 
-        $insR = $bdd->query('SELECT * FROM `activites` WHERE `id_Cam` IN ('.$this->setAllIdCampings().');');
+        $insR = $bdd->query('SELECT * FROM `activites` INNER JOIN `campings` ON `activites`.`id_Cam` = `campings`.`id_Cam` WHERE `activites`.`id_Cam` IN ('.$camp.');');
         $i = 0;
         $tableauActivites;
         while ($activite = $insR->fetch()) {
-            $r = new Activite($activite["id_Act"],$activite["libelle_Act"],$activite["description_Act"],$activite["couleur_Act"],$activite["active_Act"],$activite["id_Cam"]); 
+            $r = new Activite($activite["id_Act"],$activite["libelle_Act"],$activite["description_Act"],$activite["couleur_Act"],$activite["active_Act"],$activite["nom_Cam"]); 
             $tableauActivites[$i] = $r;
             $i++;
         }
@@ -89,8 +89,9 @@ class Activite{
 
     }
 
-    public function setAllIdCampings(){
+    public function getIdCampings($camp){
         $all = $_SESSION["Personnel"]->getAllCampings();
+
         $allId = $all[0]->getIdCamping();
         for ($i=1; $i< count($all)  ; $i++) { 
            $allId .= ", ".$all[$i]->getIdCamping();
@@ -131,7 +132,7 @@ class Activite{
     }
 
 
-    public function ModalActivite( $activite ,$titre,$id,$libelle,$description,$couleur,$camping,$class)
+    public function ModalActivite( $activite ,$titre,$id,$libelle,$description,$couleur,$camping,$class,$readonly)
     {
         $modal= 
         '<!-- Modal -->
@@ -150,7 +151,7 @@ class Activite{
                     <div class="modal-body">
                     <form enctype="multipart/form-data" action="crud" method="post">
                         ' .
-                    $this->formulaireActivite($activite,$id,$libelle,$description,$couleur,$camping)
+                    $this->formulaireActivite($activite,$id,$libelle,$description,$couleur,$readonly)
             . '
                     </form>
                 </div>
@@ -163,7 +164,7 @@ class Activite{
         return $modal;
     }
 
-    private function formulaireActivite($activite,$id,$libelle,$description,$couleur,$camping)
+    private function formulaireActivite($activite,$id,$libelle,$description,$couleur,$readonly)
     {
         $formulaireActivite="";
 
@@ -200,7 +201,7 @@ class Activite{
                 Libelle : 
             </div>
             <div class=" col">
-                <input class="align-center" type="text" name="libelle_Act" placeholder="Libelle" value="'.$libelle.'"/>
+                <input class="align-center" type="text" name="libelle_Act" placeholder="Libelle" value="'.$libelle.'" '.$readonly.'/>
             </div>
         </div>
         <br>
@@ -209,7 +210,7 @@ class Activite{
                 Description : 
             </div>
             <div class=" col">
-                <input class="align-center" type="text" name="description_Act" placeholder="Description" value="'.$description.'"/>
+                <input class="align-center" type="text" name="description_Act" placeholder="Description" value="'.$description.'" '.$readonly.'/>
             </div>
         </div>
         <br>
@@ -218,7 +219,7 @@ class Activite{
                 Couleur : 
             </div>
             <div class=" col"> 
-                <input class="align-center" type="color" name="couleur_Act" value="'.$couleur.'"/>
+                <input class="align-center" type="color" name="couleur_Act" value="'.$couleur.'" '.$readonly.'/>
             </div>
         </div>
         <br>

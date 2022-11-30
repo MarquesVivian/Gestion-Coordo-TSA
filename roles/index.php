@@ -8,9 +8,9 @@
 
     }else{
         $perso = $_SESSION["Personnel"];
-        if($perso->getRole()->getIdRole() != 5){
-            header("Location: http://testcoordo/securites/login");
-            exit();
+        if(!in_array($perso->getRole()->getIdRole(), array(4,5))){
+            header("Location: http://testcoordo/");
+            exit("Vous n'avez pas l'accés a ceci");
         }
     }
     ?>

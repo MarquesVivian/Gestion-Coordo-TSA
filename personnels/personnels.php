@@ -145,7 +145,8 @@ class Personnel
 
 
 
-    public function getRole(){
+    public function getRole()
+    {
         return $this->role;
     }
 
@@ -163,14 +164,14 @@ class Personnel
 
         $iterator = 0;
         $row = 4;
-        $card="AUCUN PERSONNEL";
+        $card = "AUCUN PERSONNEL";
         while ($p = $insPersonnels->fetch()) {
-            
+
             //si il n'y a pas d'image
             if ($p["photo_P"] == '' || !file_exists($p["photo_P"])) {
                 $p["photo_P"] = "img/profile-user.png";
             }
-        
+
             $insP = $bdd->query('SELECT * FROM `travaille` INNER JOIN `campings` on `travaille`.`id_Cam` = `campings`.`id_Cam` WHERE `id_P` = ' . $p["id_P"] . ';');
             $i = 0;
             $arrayCampings;
@@ -182,14 +183,14 @@ class Personnel
 
             $new_tel = "";
             if ($p["num_Tel_P"] != null && $p["num_Tel_P"] != "") {
-                    for ($i=0; $i < strlen($p["num_Tel_P"]); $i+=2) { 
-                        $new_tel .= " ".substr($p["num_Tel_P"],$i,2);
-                    }
-            }else{
+                for ($i = 0; $i < strlen($p["num_Tel_P"]); $i += 2) {
+                    $new_tel .= " " . substr($p["num_Tel_P"], $i, 2);
+                }
+            } else {
                 $new_tel = "N° tel";
             }
             $p["num_Tel_P"] = $new_tel;
-            $role = new Role($p["id_R"],$p["libelle_R"],$p["active_R"]);
+            $role = new Role($p["id_R"], $p["libelle_R"], 1);
 
             $personnel = new Personnel($p["id_P"], $p["nom_P"], $p["prenom_P"], $p["photo_P"], $p["num_Tel_P"], $p["email_P"], $arrayCampings, $role);
 
@@ -205,57 +206,63 @@ class Personnel
             }
 
 
-            $bgImgCard ="";
+            $bgImgCard = "";
             if ($personnel->role->getIdRole() == 1) {
                 $bgImgCard = "text-dark bg-info";
-            }else if ($personnel->role->getIdRole() == 2) {
+            } else if ($personnel->role->getIdRole() == 2) {
                 $bgImgCard = "text-white bg-danger";
-            }else if ($personnel->role->getIdRole() == 3) {
+            } else if ($personnel->role->getIdRole() == 3) {
                 $bgImgCard = "";
-            }else if ($personnel->role->getIdRole() == 4) {
+            } else if ($personnel->role->getIdRole() == 4) {
                 $bgImgCard = "text-white bg-success";
-            }else if ($personnel->role->getIdRole() == 5) {
+            } else if ($personnel->role->getIdRole() == 5) {
                 $bgImgCard = "text-white bg-dark";
             }
 
 
             $card .= "<div class='col'>
-                        <a href='../personnels/#' style='text-decoration : none; color : black'>
-                            <div class='card arrondi' style='width: 18rem; '>
+                        <a href='../personnels/' style='text-decoration : none; color : black'>
+                            <div class='card arrondi bg-image hover-overlay' style='width: 18rem; '>
                             
-                                <div class='".$bgImgCard." arrondi-top'>
-                                <h5 class='text-center'>".$personnel->role->getLibelleRole()."  </h5>
+                                <div class='" . $bgImgCard . " arrondi-top'>
+                                <h5 class='text-center'>" . $personnel->role->getLibelleRole() . "  </h5>
                                     <img src='" . $p["photo_P"] . "' class='card-img-top text-dark bg-light img-card-perso ' alt='...'>
                                     </div>
                                     <div class='card-body text-center'>
 
                                         <h5 class='card-title border border-primary'>" . $personnel->getNom() . "</h5>
                                         <h5 class='card-title border border-primary'>" . $personnel->getPrenom() . "</h5>
-                                        <h5 class='card-title border border-primary'>" . str_replace("@","<br>@",$personnel->getEmail())  . "</h5>
+                                        <h5 class='card-title border border-primary'>" . str_replace("@", "<br>@", $personnel->getEmail())  . "</h5>
                                         <h5 class='card-title border border-primary'>" . $personnel->getNumTel() . "</h5>
-                                        <form  action='crud/envoyebdd.php' method='post'>
-
-                                            <input type='hidden' name='table' value='personnels'/>";
+                                        </a>";
 
             if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(2, 4, 5))) {
-                            $card .= "  <input type='hidden' name='exec' value='modif'/>
-                                        <input type='submit' class='btn btn-primary' value='Modifier'>";
-                if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(4,5))) {
-                            $card .="   <input type='hidden' name='exec' value='suppression'/>
-                                        <input type='submit' class='btn btn-danger' value='Suprim'>";
+                $card .= $this->BtnModalPerso("update","Modif","btn-info col-lg-5",$personnel->getId());
+                $card .=$this->ModalPerso("update","Modification d'un Personnel",$personnel->getId(),$personnel->getNom(),$personnel->getPrenom(),$personnel->getNumTel(),$personnel->getEmail(),"","");
+                if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(4, 5))) {
+                    $card .= $this->BtnModalPerso("delete","Supp","btn-danger col-lg-5",$personnel->getId());
+                    $card .=$this->ModalPerso("delete","Suppression d'un Personnel",$personnel->getId(),$personnel->getNom(),$personnel->getPrenom(),$personnel->getNumTel(),$personnel->getEmail(),"","");
                 }
             }
-            $card .= "                  <input type='hidden' name='Personnel' value='" . $personnel->getId() . "'/>
-                                    </form>
+            $card .= "
                                 </div>
                             </div>
-                        </a>
-                    </div>";
+                        
+                            <div
+                            class='mask'
+                            style='
+                              background: linear-gradient(
+                                45deg,
+                                rgba(29, 236, 197, 0.5),
+                                rgba(91, 14, 214, 0.5) 100%
+                              );
+                            '
+                          ></div>A</div>";
 
             $iterator++;
             $row++;
         }
-        $card .= "</div>";
+        $card .= '</div>';
         echo $card;
     }
 
@@ -271,7 +278,7 @@ class Personnel
         WHERE `personnels`.`active_P` = 1
         GROUP BY `personnels`.`id_P`
         ORDER BY `personnels`.`id_R` DESC;');
-        
+
         $this->setCardsPersonnels($insPersonnels);
     }
 
@@ -287,7 +294,6 @@ class Personnel
         WHERE `personnels`.`active_P` = 1 AND `Campings`.`id_Cam` IN (' . $idCamp . ') 
         GROUP BY `personnels`.`id_P`
         ORDER BY `personnels`.`id_R` DESC ;');
-        var_dump($insPersonnels);
         $this->setCardsPersonnels($insPersonnels);
     }
 
@@ -299,140 +305,20 @@ class Personnel
     }
 
 
-
-    public function ModalCreationPerso()
-    {
-        echo '
-        <!-- Button trigger modal -->
-        <br>
-        <div class="row justify-content-md-center ">
-        <button type="button" id="btn-Test" class="btn btn-primary col-lg-5" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Ajouter un personnel
-        </button>
-        </div>
-        <!-- Modal -->
-        <form enctype="multipart/form-data" action="crud/envoyebdd.php" method="post">
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-
-                        <div class="col">
-                            <h5 class="modal-title text-center" id="exampleModalLabel">Création de personnel</h5>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-
-                    <div class="modal-body">
-                        ' .
-            $this->creationPersonnel()
-            . '
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Envoyer</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        </form>
-        ';
-    }
-
-
-
-    public function creationPersonnel()
-    {
-
-        $creationPersonnel = '
-        <input type="hidden" name="table" value="personnels"/>
-        <input type="hidden" name="exec" value="creation"/>
-        <div class="row">
-            <div class="col-3 text-center">
-                Nom : 
-            </div>
-            <div class=" col">
-                <input class="align-center" type="text" name="nom" placeholder="Nom"/>
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-3 text-center">
-            Prenom :  
-            </div>
-            <div class=" col">
-                <input type="text" name="prenom" placeholder="Prenom">
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-3 text-center">
-                Tel :  
-            </div>
-            <div class=" col">
-                <input type="text" name="tel" placeholder="0601234567" maxlenght ="12">
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-3 text-center">
-                Mail :  
-            </div>
-            <div class=" col">
-                <input type="text" name="mail" placeholder="exemple@exemple.ex" maxlenght ="12">
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-3 text-center">
-                MDP  :
-            </div>
-            <div class=" col">
-                <input type="password" name="mdp" placeholder="Mot De Passe">
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-3 text-center">
-                Photo :  
-            </div>
-            <div class=" col">
-                <input type="hidden" name="MAX_FILE_SIZE" value="300000" />
-                <input type="file" name="Photo">
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-3 text-center">
-                <label for="campings-select">Camping </label> 
-            </div>
-            <div class=" col">
-            '.$this->ChoixCampingsCreationPerso().'
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-3 text-center">
-            <label for="role-select">Rôle:</label> 
-            </div>
-            <div class=" col">
-                '.$this->ChoixRolesCreationPerso().'
-            </div>
-        </div>';
-
-        return $creationPersonnel;
-    }
-
     public function ChoixCampingsCreationPerso()
     {
+        include "../DAO.php";
         $value = '
         <select name="campings" id="camping-select">';
-        include "../DAO.php";
+
         $ins = $bdd->query('SELECT `id_Cam`, `nom_Cam` FROM `campings` WHERE `id_Cam` IN (' . $this->ValueCampings() . ') ;');
+        $i = 0;
         while ($donnee = $ins->fetch()) {
             $value .= "<option value='" . $donnee["id_Cam"] . "'>" . $donnee["nom_Cam"] . "</option>";
+            $_SESSION["SelectCamp"][$i]["id_Cam"] = $donnee["id_Cam"];
+            $_SESSION["SelectCamp"][$i]["nom_Cam"] = $donnee["nom_Cam"];
+            $i++;
         }
-
         $value .= "
         </select>
         ";
@@ -443,7 +329,7 @@ class Personnel
     public function ValueCampings()
     {
         $cam = 1;
-        
+
         $value = $_SESSION["Personnel"]->getCamping(0)->getIdCamping();
         while ($cam < count($_SESSION["Personnel"]->getAllCampings())) {
             $value .= ', ' . $_SESSION["Personnel"]->getCamping($cam)->getIdCamping();
@@ -490,4 +376,218 @@ class Personnel
         return $value;
     }
 
+
+    public function BtnModalPerso($crud, $titre, $class, $id)
+    {
+        $btn = "";
+        if ($crud == "create") {
+            $btn = '
+            <!-- Button trigger modal -->
+            <br>
+            <div class="row justify-content-md-center ">
+                <button type="button" id="btn-Test" class="btn ' . $class . '" data-bs-toggle="modal" data-bs-target="#exampleModal' . $crud . $id . '">
+                    ' . $titre . '
+                </button>
+            </div>';
+        } else if ($crud == "update") {
+            $btn = '
+            <!-- Button trigger modal -->
+                <button type="button" id="btn-Test" class="btn ' . $class . '" data-bs-toggle="modal" data-bs-target="#exampleModal' . $crud . $id . '">
+                    ' . $titre . '
+                </button>';
+        } else if ($crud == "delete") {
+            $btn = '
+            <!-- Button trigger modal -->
+                <button type="button" id="btn-Test" class="btn ' . $class . '" data-bs-toggle="modal" data-bs-target="#exampleModal' . $crud . $id . '">
+                    ' . $titre . '
+                </button>';
+        }
+        return $btn;
+    }
+
+    public function ModalPerso($crud, $titre, $id, $nom, $prenom, $tel, $mail, $Camping, $role)
+    {
+        $modal =
+
+            '
+        <!-- Modal -->
+        
+        <div class="modal fade" id="exampleModal' . $crud . $id . '" tabindex="-1" aria-labelledby="exampleModalLabel' . $crud . '" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+
+                        <div class="col">
+                            <h5 class="modal-title text-center" id="exampleModalLabel' . $crud . '">' . $titre . '</h5>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                    <div class="modal-body">
+                    <form enctype="multipart/form-data" action="crud" method="post">
+                        ' .
+            $this->formulairePerso($crud, $id,  $nom, $prenom, $tel, $mail, $Camping, $role)
+            . '
+            </form>
+                </div>
+            </div>
+        </div></div>
+        
+        
+        ';
+        return $modal;
+    }
+
+    public function formulairePerso($crud, $id,  $nom, $prenom, $tel, $mail, $Camping, $role)
+    {
+        $formulaireperso = "";
+
+        switch ($crud) {
+            case 'create':
+                $formulaireperso .= '
+                <input type="hidden" name="table" value="personnels"/>
+                <input type="hidden" name="exec" value="creation"/>';
+
+                break;
+
+
+            case 'update':
+                $formulaireperso .= '
+                <input type="hidden" name="table" value="campings"/>
+                <input type="hidden" name="exec" value="update"/>
+                <input type="hidden" name="id_P" value="' . $id . '"/>';
+
+                break;
+
+            case 'delete':
+                $formulaireperso .= '
+                
+                <input type="hidden" name="table" value="campings"/>
+                <input type="hidden" name="exec" value="delete"/>
+                <input type="hidden" name="id_P" value="' . $id . '"/>';
+
+
+                break;
+        }
+        $formulaireperso .= '
+                            <div class="row">
+                            <div class="col-3 text-center">
+                                Nom : 
+                            </div>
+                            <div class=" col">
+                                <input class="align-center" type="text" name="nom" placeholder="Nom" value="'. $nom.'"/>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                            Prenom :  
+                            </div>
+                            <div class=" col">
+                                <input type="text" name="prenom" placeholder="Prenom" value="'. $prenom.'">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                                Tel :  
+                            </div>
+                            <div class=" col">
+                                <input type="text" name="tel" maxlenght ="12" placeholder="0612345678"  value="'. $tel.'">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                                Mail :  
+                            </div>
+                            <div class=" col">
+                                <input type="text" name="mail" placeholder="exemple@exp.ex" value="'. $mail.'">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                                MDP  :
+                            </div>
+                            <div class=" col">
+                                <input type="password" name="mdp" placeholder="Mot De Passe">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                                Photo :  
+                            </div>
+                            <div class=" col">
+                                <input type="hidden" name="MAX_FILE_SIZE" value="300000" />
+                                <input type="file" name="Photo">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                                <label for="campings-select">Camping </label> 
+                            </div>
+                            <div class=" col">
+                            ' . $this->ChoixCampingsCreationPerso() . '
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-3 text-center">
+                            <label for="role-select">Rôle:</label> 
+                            </div>
+                            <div class=" col">
+                                ' . $this->ChoixRolesCreationPerso() . '
+                            </div>
+                        </div>';
+
+
+        switch ($crud) {
+            case 'create':
+                $formulaireperso .= '
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Créer</button>
+                </div>';
+
+                break;
+
+
+            case 'update':
+                $formulaireperso .= '
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Modifier</button>
+                </div>';
+
+                break;
+
+            case 'delete':
+                $formulaireperso .= '
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Oui Supprimer</button>
+                </div>';
+
+
+                break;
+        }
+        return $formulaireperso;
+    }
+
+    public function getNomCampingChoisi($idCamp)
+    {
+        $nomCamp = $this->getAllCampings();
+        $i = 0;
+        $a = 0;
+
+        while ($i <= count($nomCamp)) {
+            if ($nomCamp[$i]->getIdCamping() == $idCamp) {
+                $nomCamp = $nomCamp[$i]->getNomCamping();
+                break;
+            }
+            $i++;
+        }
+
+        return $nomCamp;
+    }
 }

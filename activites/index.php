@@ -8,13 +8,12 @@
 
     }else{
         $perso = $_SESSION["Personnel"];
-        if($perso->getRole()->getIdRole() != 5){
+        if(!in_array($_SESSION['Personnel']->getRole()->getIdRole(),array(2,4,5))){
             header("Location: http://testcoordo/securites/login");
             exit();
         }
     }
-    $a = new Activite("a","a","a","a","a","a"); 
-    //var_dump($a->setTableauActivites());
+    
     ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -29,8 +28,33 @@
 <body>
     <div class="container-fluid">
         <?php
+        $a = new Activite("a","a","a","a","a","a"); 
     echo $a->BtnModalActivite("create","Création d'une Activite","btn-primary col-lg-5","id");
-    echo $a->ModalActivite("create","Création d'une Activite","id","","","","","bg-primary");
+    echo $a->ModalActivite("create","Création d'une Activite","id","","","","","bg-primary","");
+
+    if (!empty($_POST["campings"])) {
+        $_SESSION["camp"] = $_POST["campings"];
+    }
+
+    if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(4))) {//si c'est un coordo on lui met un choix de camping
+        echo '<br><br>
+        <form action="" method="post">
+        <div class="row">
+            <div class="col text-center">
+                <label for="campings-select">Camping </label> ';
+
+                   echo $perso->ChoixCampingsCreationPerso();
+
+        echo'
+                <button type="submit" class="btn btn-primary">Envoyer</button>
+            </div>
+        </div>
+        </form>
+        <br><br>';
+        echo "<div class='row justify-content-md-center '>
+            <div class='text-center col-lg-5 border border-3 border-primary'><h4>Vous etes Actuellement sur le camping : <br>".  $perso->getNomCampingChoisi($_SESSION["camp"])."</h4></div>
+            </div>";
+    }
 
     ?>
 
@@ -57,8 +81,7 @@
         <tbody>
 <?php 
 
-$tableauRole = $a->setTableauActivites();
-
+$tableauRole = $a->setTableauActivites($_SESSION["camp"]);
 for ($i=0; $i < count($tableauRole) ; $i++) { 
     echo '  <tr class="">
                 <td scope="row" class="col-md-1 text-center">'.$tableauRole[$i]->getIdActivite().'</td>
@@ -71,14 +94,14 @@ for ($i=0; $i < count($tableauRole) ; $i++) {
                 <td scope="row" class="col-sm-1 text-center">
                         '.
                         $tableauRole[0]->BtnModalActivite("update","Modifier","btn-info",$tableauRole[$i]->getIdActivite()).
-                        $tableauRole[0]->ModalActivite("update","Modifier une Activité",$tableauRole[$i]->getIdActivite(),$tableauRole[$i]->getLibelleActivite(),$tableauRole[$i]->getDescriptionActivite(),$tableauRole[$i]->getCouleurActivite(),$tableauRole[$i]->getCampingActivite(),"bg-success")
+                        $tableauRole[0]->ModalActivite("update","Modifier une Activité",$tableauRole[$i]->getIdActivite(),$tableauRole[$i]->getLibelleActivite(),$tableauRole[$i]->getDescriptionActivite(),$tableauRole[$i]->getCouleurActivite(),$tableauRole[$i]->getCampingActivite(),"bg-success","")
 
                         .'
                 </td>
                 <td scope="row" class="col-sm-1 text-center">
                     '. 
                     $tableauRole[0]->BtnModalActivite("delete","Suprimer","btn-danger",$tableauRole[$i]->getIdActivite()).
-                    $tableauRole[0]->ModalActivite("delete","Supprimer une Activité",$tableauRole[$i]->getIdActivite(),$tableauRole[$i]->getLibelleActivite(),$tableauRole[$i]->getDescriptionActivite(),$tableauRole[$i]->getCouleurActivite(),$tableauRole[$i]->getCampingActivite(),"bg-danger")
+                    $tableauRole[0]->ModalActivite("delete","Supprimer une Activité",$tableauRole[$i]->getIdActivite(),$tableauRole[$i]->getLibelleActivite(),$tableauRole[$i]->getDescriptionActivite(),$tableauRole[$i]->getCouleurActivite(),$tableauRole[$i]->getCampingActivite(),"bg-danger","readonly")
                     .
                      '
                 </td>
