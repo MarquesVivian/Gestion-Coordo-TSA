@@ -6,7 +6,7 @@
 
     }else{
         $perso = $_SESSION["Personnel"];
-        if(!in_array($perso->getRole()->getIdRole(), array(4,5))){
+        if(!in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array("Coordinateur", "Administration TSA"))){
             header("Location: http://testcoordo/");
             exit("Vous n'avez pas l'accés a ceci");
         }

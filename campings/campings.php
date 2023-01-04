@@ -180,7 +180,7 @@ class Camping{
                 $formulaireCamping = '
                 <input type="hidden" name="table" value="campings"/>
                 <input type="hidden" name="exec" value="update"/>
-                <input type="hidden" name="id_R" value="'.$id.'"/>
+                <input type="hidden" name="id_Cam" value="'.$id.'"/>
                 <div class="row">
                     <div class="col-3 text-center">
                         Libelle : 
@@ -201,7 +201,7 @@ class Camping{
                 
                 <input type="hidden" name="table" value="campings"/>
                 <input type="hidden" name="exec" value="delete"/>
-                <input type="hidden" name="id_R" value="'.$id.'"/>
+                <input type="hidden" name="id_Cam" value="'.$id.'"/>
                 <input type="hidden" name="nom_Cam" value="'.$libelle.'"/>
                 <div class="row">
                     <div class="col text-center">

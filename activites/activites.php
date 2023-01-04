@@ -24,6 +24,7 @@ class Activite{
 
 
 
+    
     /**
      * Get the value of camping
      */ 
@@ -77,14 +78,15 @@ class Activite{
         require("../DAO.php");
 
         $insR = $bdd->query('SELECT * FROM `activites` INNER JOIN `campings` ON `activites`.`id_Cam` = `campings`.`id_Cam` WHERE `activites`.`id_Cam` IN ('.$camp.');');
+
         $i = 0;
-        $tableauActivites;
+        $tableauActivites =[];
         while ($activite = $insR->fetch()) {
             $r = new Activite($activite["id_Act"],$activite["libelle_Act"],$activite["description_Act"],$activite["couleur_Act"],$activite["active_Act"],$activite["nom_Cam"]); 
             $tableauActivites[$i] = $r;
+
             $i++;
         }
-
         return $tableauActivites;
 
     }
@@ -228,7 +230,7 @@ class Activite{
                 Campings : 
             </div>
             <div class=" col">
-            '.$_SESSION["Personnel"]->ChoixCampingsCreationPerso().'
+            '.$_SESSION["Personnel"]->ChoixCampingsCreationPerso($_SESSION["camp"]).'
             </div>
         </div>
         <br>

@@ -2,7 +2,6 @@
 include("../navBar.php");
 @$login = $_POST["login"];
 @$pass = md5($_POST["pass"]);
-//@$pass = $_POST["pass"];
 @$valider = $_POST["valider"];
 $erreur = "";
 if (isset($valider)) {
@@ -17,12 +16,12 @@ if (isset($valider)) {
 
 
       switch ($tab[0]["id_R"]) {
-         case '5':
+         case '5' || '4':
             $insP = $bdd->query('SELECT * FROM `campings` WHERE `active_Cam` = true;');
             break;
 
          default:
-            $insP = $bdd->query('SELECT * FROM `travaille` INNER JOIN `campings` on `travaille`.`id_Cam` = `campings`.`id_Cam` WHERE `id_P` = ' . $tab[0]["id_P"] . ' AND `active_Cam` = true ;');
+            $insP = $bdd->query('SELECT * FROM `travaille` INNER JOIN `campings` on `travaille`.`id_Cam` = `campings`.`id_Cam` WHERE `active_Tr` = true AND `id_P` = ' . $tab[0]["id_P"] . ' AND `active_Cam` = true ;');
             break;
       }
 
@@ -41,6 +40,7 @@ if (isset($valider)) {
       $_SESSION["Personnel"] = new Personnel($tab[0]["id_P"], $tab[0]["nom_P"], $tab[0]["prenom_P"], $tab[0]["photo_P"], $tab[0]["num_Tel_P"], $tab[0]["email_P"], $arrayCampings, $role);
       $_SESSION["camp"] = $arrayCampings[0]->getIdCamping();
       $_SESSION["connecter"] = "oui";
+      $_SESSION["timestamp"] = time();
       header("location:../index.php");
    } else {
 

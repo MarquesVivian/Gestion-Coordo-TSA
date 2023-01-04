@@ -29,7 +29,7 @@
     padding: 0px">
             <?php
             // si c'est un responsable d'animation/ un coordinateur ou un adminTSA on laisse un bouton création personne
-            if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(2, 4, 5))) {
+            if (in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array("Responsable d'Animation","Coordinateur", "Administration TSA"))) {
                 echo $perso->BtnModalPerso("create","Création d'un Personnel","btn-primary col-lg-5","");
                 echo $perso->ModalPerso("create","Création d'un Personnel","","","","","","","");
                 //$perso->ModalCreationPerso();
@@ -39,37 +39,30 @@
                 $_SESSION["camp"] = $_POST["campings"];
             }
             //si c'est un animateur / un responsable d'animation / un admin Camping
-            if (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(1, 2, 3))) {
+            if (in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array("Responsable d'Animation","Animateur", "Administration Camping"))) {
                 $perso->toutPersonnelsCamping($_SESSION["camp"]);
-            } elseif (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(4))) {//si c'est un coordo on lui met un choix de camping
+            } elseif (in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array("Coordinateur", "Administration TSA"))) {//si c'est un coordo on lui met un choix de camping
                 echo '<br><br>
                 <form action="" method="post">
                 <div class="row">
                     <div class="col text-center">
                         <label for="campings-select">Camping </label> ';
 
-                           echo $perso->ChoixCampingsCreationPerso();
+                           echo $perso->ChoixCampingsCreationPerso($_SESSION["camp"]);
 
                 echo'
-                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                        <button type="submit" class="btn btn-primary">Valider</button>
                     </div>
                 </div>
                 </form>
                 <br><br>';
-                echo "<div class='row justify-content-md-center '>
-                    <div class='text-center col-lg-5 border border-3 border-primary'><h4>Vous etes Actuellement sur le camping : <br>".  $perso->getNomCampingChoisi($_SESSION["camp"])."</h4></div>
-                    </div>";
-
 
                 $perso->toutPersonnelsCamping($_SESSION["camp"]);
-            } elseif (in_array($_SESSION['Personnel']->getRole()->getIdRole(), array(5))) {//si c'est un admin TSA
-
-                $perso->toutPersonnels();
             }
+
+
             ?>
-
-
-        </div>
+            </div>
         <br>
 
     </body>

@@ -8,7 +8,17 @@ class calendrier
 
 
 
-    public function setArrayPersonnels()
+        //On affiche le tableau
+        public function afficheTableau($id_P,$id_Camp){
+            $tableauPersonne = $this->setArrayPersonnels($id_P,$id_Camp);
+            for ($t = 0; $t < sizeof($tableauPersonne); $t++) {
+                for ($y = 0; $y < sizeof($tableauPersonne[$t]); $y++) {
+                    echo $tableauPersonne[$t][$y];
+                }
+            }
+        }
+
+    public function setArrayPersonnels($id_P,$id_Camp)
     {
 
 
@@ -17,9 +27,14 @@ class calendrier
         $dateFormater_dFY = $this->dateFormater_dFY();
         $dateFormater_Ymd = $this->dateFormater_Ymd();
 
-
         include "../DAO.php";
-        $insP = $bdd->query('SELECT id_P,nom_P,prenom_P FROM `personnels` WHERE `active_P` = 1  ORDER BY personnels.id_P;');
+        $lien = "http://testcoordo/calendrier/index?j=";
+        if($id_P ==""){
+            $insP = $bdd->query('SELECT `personnels`.`id_P`,`nom_P`,`prenom_P` FROM `personnels`  INNER JOIN `travaille` on `personnels`.`id_P` = `travaille`.`id_P`  WHERE `id_cam` = '.$id_Camp.' AND `active_Tr` = 1 AND `active_P` = 1  ORDER BY personnels.id_P;');
+        }else{
+            $insP = $bdd->query('SELECT `personnels`.`id_P`,`nom_P`,`prenom_P` FROM `personnels` INNER JOIN `travaille` on `personnels`.`id_P` = `travaille`.`id_P`  WHERE `id_cam` = '.$id_Camp.' AND `active_Tr` = 1 AND `personnels`.`id_P` = '.$id_P.' ; ');
+            $lien = "http://testcoordo/personnels/read?j=";
+        }
 
         //le tableau et = au <table> qui sera afficher ($tableauPersonne[nbAnimateur][65])
 
@@ -28,13 +43,13 @@ class calendrier
         $tableauPersonne[0][0] = "    
         <div class='container-fluid'>
             <h1 class='d-flex justify-content-center'>
-                <a href='http://testcoordo/calendrier/index.php?j=" . $dateM1Formater_Ymd . "'>
+                <a href='". $lien . $dateM1Formater_Ymd . "'>
                     <
                 </a>
                 <span> 
                     Calendrier du " . $dateFormater_dFY . " 
                 </span>
-                <a href='http://testcoordo/calendrier/index.php?j=" . $dateP1Formater_Ymd . "'>
+                <a href='".$lien . $dateP1Formater_Ymd . "'>
                     >
                 </a> 
             </h1>
@@ -81,26 +96,41 @@ class calendrier
 
         while ($ligneP = $insP->fetch()) { //Pour chaque personne (a rajouter le camping et le active)
             $tableauPersonne[$lignePersonne][0] = "
-        <tr>
-            <th scope='row' style='padding-left: 0px; padding-right: 0px; vertical-align: middle;'>
-                <a href='index.php' style='text-decoration: none;'><button style='display:block;width:100%;line-height:30px;color : red;'>" . $ligneP["nom_P"] . "</button></a>
-            </th>";
+            <tr>
+                <th scope='row' style='padding-left: 0px; padding-right: 0px; vertical-align: middle;'>
+                <form enctype='multipart/form-data' action='/personnels/read?j=".date('Y-m-d')."' method='post'>
+                <input type='hidden' name='table' value='personnels'/>
+                <input type='hidden' name='id_P' value='".$ligneP["id_P"]."'/>
+                <button type='submit' style='display:block;width:100%;line-height:30px;color : red;'>" . $ligneP["nom_P"] . "</button>
+            </form>
+
+                </th>";
 
 
 
             // on recherche toutes les activités du jours donnée de l'animateurs
 
-            $requetetest = 'SELECT TIMESTAMPDIFF(MINUTE,TIMESTAMP(date("' . $dateFormater_Ymd . '"), \'8:00:00\'), dateDebut_An) as difPremier,
-        dateDebut_An,
-        dateFin_An,
-        TIMESTAMPDIFF(MINUTE, dateDebut_An, dateFin_An) as dureeActivite,
-        libelle_Act,
-        couleur_Act
-        FROM `personnels`
-        LEFT JOIN animations ON personnels.id_P = animations.id_P 
-        LEFT JOIN activites ON activites.id_Act = animations.id_Act
-        WHERE personnels.id_P = ' . $ligneP["id_P"] . ' AND DATE(dateDebut_An) LIKE "' . $dateFormater_Ymd . '"
-        ORDER BY dateDebut_An;';
+            $requetetest = 'SELECT `nom_P`,
+            `prenom_P`,
+            `num_Tel_P`,
+            `email_P`,
+            TIMESTAMPDIFF(MINUTE,TIMESTAMP(date("' . $dateFormater_Ymd . '"), \'8:00:00\'), dateDebut_An) as difPremier,
+            `dateDebut_An`,
+            `dateFin_An`,
+            `id_An`,
+            TIMESTAMPDIFF(MINUTE, dateDebut_An, dateFin_An) as dureeActivite,
+            `couleur_Act`,
+            `activites`.*
+            FROM `personnels`
+            LEFT JOIN `animations` ON `personnels`.`id_P` = `animations`.`id_P` 
+            LEFT JOIN `activites` ON `activites`.`id_Act` = `animations`.`id_Act`
+            WHERE `personnels`.`id_P` = ' . $ligneP["id_P"] . ' AND DATE(dateDebut_An) LIKE "' . $dateFormater_Ymd . '"
+            ORDER BY dateDebut_An;';
+
+            //debug
+            // echo $requetetest."<br> <br>"   ;
+
+
             $insA = $bdd->query($requetetest);
 
             $case = 1;
@@ -108,12 +138,16 @@ class calendrier
             $hMoins1 = 0;
             //on vas remplir le tableau
             while ($animation = $insA->fetch()) { //pour toute les animations d'un animateurs
+                $activite = new Activite($animation["id_Act"],$animation["libelle_Act"],$animation["description_Act"],$animation["couleur_Act"],$animation["active_Act"],$animation["id_Cam"]);
+                $anim = new Animation($animation["id_An"],$ligneP["id_P"],$activite,$animation["dateDebut_An"],$animation["dateFin_An"]);
+                
 
                 $dateDebut = explode(" ", $animation["dateDebut_An"]);
                 $horaireDebut = explode(":", $dateDebut[1]);
 
                 $dateFin = explode(" ", $animation["dateFin_An"]);
                 $horaireFin = explode(":", $dateFin[1]);
+
                 $dureeActivite = ((int) $animation["dureeActivite"] / 15); //l'acitivité qui est donner en Minutes et diviser pour avoir le nombre de quarts d'heure
 
                 $dureeActivite = $dureeActivite > ((int)$dureeActivite) ? ((int)$dureeActivite + 1) : $dureeActivite; //si $a est superieur a (int)$a ca veut dire que c'est un float donc on le fait passer en INT+1 pour avoir la bonne durée
@@ -150,10 +184,17 @@ class calendrier
                 //ici on est arriver a udébut de l'acitivité
                 //on lui donne la taille qu'elle dois avoir en colspan
 
+
+                //debug
+                //var_dump($anim->getDateDebut());
+
+
                 $tableauPersonne[$lignePersonne][$case] = "
-                <td style='background : " . $animation["couleur_Act"] . " ;box-shadow: none; ' colspan='" . ((int)$dureeActivite) . "'>
-                    <span class='texte-hover texte-original'>" . $animation["libelle_Act"] . "<br> " . $horaireDebut[0] . "H" . $horaireDebut[1] . " " . $horaireFin[0] . "H" . $horaireFin[1] . "</span>
+                <td style='border-left: 2px solid black;background : " . $anim->getActivite()->getCouleurActivite(). " ;box-shadow: none; ' colspan='" . ((int)$dureeActivite) . "'>
+                    ".$anim->BtnModalAnimation("view").
+                     $anim->ModalAnimation("view")."
                 </td>";
+                
                 //on remplis les case dudébut de lactivté jusqu'a la fin de l'activité par rien
                 $case++;
                 $test = $case + (int)$dureeActivite;
@@ -179,7 +220,18 @@ class calendrier
             $tableauPersonne[$lignePersonne][$case - 1] .= "</tr>";
             $lignePersonne++;
         }
-        $tableauPersonne[sizeof($tableauPersonne) - 1][sizeof($tableauPersonne[0]) - 1] .= " 
+
+        /**POUR EVITER UN BUG */
+        $tableauPersonne[$lignePersonne][0] = "<tr style='border-width:0;'>";
+
+        for ($i=1; $i < 65; $i++) { 
+            $tableauPersonne[$lignePersonne][$i] = " <td style='opacity : 0%; border:none' ></td>";
+
+        }
+        $tableauPersonne[$lignePersonne][sizeof($tableauPersonne[0]) - 1] .= "</tr>";
+        /**FIN DU POUR EVITER UN BUG */
+
+        $tableauPersonne[$lignePersonne][sizeof($tableauPersonne[0]) - 1] .= " 
             </tbody>
         </table>
     </div>";
@@ -187,15 +239,7 @@ class calendrier
     }
 
 
-    //On affiche le tableau
-    public function afficheTableau(){
-        $tableauPersonne = $this->setArrayPersonnels();
-        for ($t = 0; $t < sizeof($tableauPersonne); $t++) {
-            for ($y = 0; $y < sizeof($tableauPersonne[$t]); $y++) {
-                echo $tableauPersonne[$t][$y];
-            }
-        }
-    }
+
 
 
     public  function isValid($date, $format = 'Y-m-d')
@@ -239,4 +283,7 @@ class calendrier
         $dateFormater_Ymd = date_format($date, "Y-m-d");
         return $dateFormater_Ymd;
     }
+
+
+    
 }

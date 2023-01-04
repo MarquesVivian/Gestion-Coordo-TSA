@@ -1,5 +1,4 @@
 <?php
-    include("../navBar.php");
     //si le personnel n'est pas autorisé et qu'il n'est pas admin
     include("../navBar.php");
     if ($_SESSION["connecter"] != "oui") {
@@ -14,16 +13,20 @@
         }
     }
 
-    if ($_POST['exec'] == "create") {
-        echo CreateRole();
-    } elseif ($_POST['exec'] == "delete") {
-        include("../DAO.php");
-        $sql = "UPDATE `" . $_POST["table"] . "` SET `active_R` = '0' WHERE `".$_POST["table"]."`.`id_R` = " . $_POST['id_R'] . ";";
-        $bdd->query($sql);
-    }elseif ($_POST['exec'] == "update") {
-        echo UpdateRole();
+    function choiceExec(){
+            include("../DAO.php");
+        
+        if ($_POST['exec'] == "create") {
+            return CreateRole();
+        
+        } elseif ($_POST['exec'] == "delete") {
+            $sql = "UPDATE `" . $_POST["table"] . "` SET `active_R` = '0' WHERE `".$_POST["table"]."`.`id_R` = " . $_POST['id_R'] . ";";
+            $bdd->query($sql);
+        
+        }elseif ($_POST['exec'] == "update") {
+            return UpdateRole();
+        }
     }
-    header("Location: http://testcoordo/roles/");
 
     function UpdateRole(){
         $verif = VerifRequest();
@@ -43,7 +46,7 @@
             include("../DAO.php");
             $expinsert = "INSERT INTO table (`id_R`, `libelle_R`)  VALUE valeur ";
             $insert = $expinsert;
-            $valeur = "(NULL,'" . $_POST['Libelle'] . "')";
+            $valeur = "(NULL,'" . $_POST['libelle_R'] . "')";
             $sql = str_replace("table", $_POST["table"], $insert);
             $sql = str_replace("valeur", $valeur, $sql);
 
@@ -58,11 +61,10 @@
     function VerifRequest(){
         include("../DAO.php");
         $erreur ="";
-        $_POST['libelle_R']=ucfirst(str_replace(" ","",$_POST['libelle_R']));
         
         
         
-        if (empty($_POST['libelle_R']) || $_POST['libelle_R'] == "") {
+        if (empty($_POST['libelle_R']) || $_POST['libelle_R'] == "" || strlen($_POST['libelle_R']) < 3) {
             $erreur = "Il manque un Libelle";
         }else{
             //on vérifie si le role n'est pas déja utiliser
@@ -78,3 +80,19 @@
     }
 
 ?>
+
+<html>
+
+<head>
+    <style>
+        .erreur {
+            color: #CC0000;
+            margin-bottom: 10px;
+        }
+    </style>
+    <title>Crud Personnel</title>
+    <div class="erreur"><?php echo choiceExec() ?></div>
+    <meta http-equiv="refresh" content="5; URL=http://testcoordo/roles/">
+</head>
+
+</html>

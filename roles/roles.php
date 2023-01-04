@@ -143,7 +143,7 @@ class Role
                 </div>
                 </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                        <button type="submit" class="btn btn-primary">Créer</button>
                     </div>';
 
                 break;
@@ -164,7 +164,7 @@ class Role
                 </div>
                 </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                        <button type="submit" class="btn btn-primary">Modifier</button>
                     </div>';
                     
                  break;

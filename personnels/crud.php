@@ -1,22 +1,60 @@
 <?php
-include("../DAO.php");
+
 //si c'est une création
-if ($_POST['exec'] == "creation") {
-    CreatePersonnel();
-    //si c'est une suppression
-} elseif ($_POST['exec'] == "suppression") {
-    $sql = "UPDATE `" . $_POST["table"] . "` SET `active` = '0' WHERE `personnels`.`id_P` = " . $_POST['id_P'] . ";";
-    var_dump($sql);
-    //$bdd->query($sql);
-    $sqLog = "INSERT INTO `logs` (`fk_P_L`, `date_L`, `requetes_L`) VALUES ('11', 	
-    NOW(), 'test');";
-    //$bdd->query($sqLog);
-}elseif ($_POST['exec'] == "modif") {
-    
+
+function choiceExec(){
+    include("../DAO.php");
+
+if ($_POST['exec'] == "create") {
+    return CreatePersonnel();
+
+} elseif ($_POST['exec'] == "delete") {
+    $sql = "UPDATE `" . $_POST["table"] . "` SET `active_P` = '0' WHERE `personnels`.`id_P` = " . $_POST['id_P'] . ";
+            UPDATE `travaille` set `active_Tr` = '0' WHERE `personnels`.`id_P` = " . $_POST['id_P'] . ";";
+    $bdd->query($sql);
+
+}elseif ($_POST['exec'] == "update") {
+    return UpdatePersonnel();
+}
+}
+
+function UpdatePersonnel(){
+    $verif = VerifRequest();
+    $mdp = 1;
+    $img = 1;
+
+    if($verif['erreur'] == "Il manque un mot de passe"){
+        $mdp = 0;
+        $verif['erreur'] = "";
+    }elseif($verif['upFile'] == "img/profile-user.png"){
+        $img = 0;
+    }
+    if ($verif['erreur'] == "") {
+        include("../DAO.php");
+
+        $updateTravaille= $_POST['campings'] == $_POST['oldCamping'] ? "" : "UPDATE travaille SET active_tr = 0 WHERE id_P = ".$_POST['id_P']." ;INSERT INTO travaille (id_Cam, id_P, date_Tr) VALUE (" . $_POST['campings'] . ", " . $_POST['id_P'] . ", NOW());" ;
+        $expinsert = "UPDATE table SET valeur WHERE `id_P` = " . $_POST['id_P'] . " ; ".$updateTravaille;
+        $insert = $expinsert;
+
+        
+
+        $mdp = $mdp==1 ? ",`motDePasse = `".md5($_POST['mdp']) : "";
+        $img = $img==1 ?", `photo_P` ='". $verif['upFile']:"'" ;
+        
+        $personnel = " `nom_P` = '" . $_POST['nom'] . "', `prenom_P` = '" . $_POST['prenom'] . "', `num_Tel_P` = '" . $_POST['tel'] . "', `email_P` = '" . $_POST['mail'] ."'". $img . $mdp ."', id_R = " . $_POST['roles'] ;
+        $sql = str_replace("table", $_POST["table"], $insert);
+        $sql = str_replace("valeur", $personnel, $sql);
+        $travaille = "";
+        echo $sql;
+        $bdd->query($sql);
+    }
+    return  $verif['erreur'];
 }
 
 
+
 function CreatePersonnel(){
+    include("../DAO.php");
     $verif = VerifRequest();
     if ($verif['erreur'] == "") {
         include("../DAO.php");
@@ -26,14 +64,34 @@ function CreatePersonnel(){
         $personnel = "(NULL,'" . $_POST['nom'] . "','" . $_POST['prenom'] . "','" . $_POST['tel'] . "','" . $_POST['mail'] . "','" . $verif['upFile'] . "','" . md5($_POST['mdp']) . "'," . $_POST['roles'] . ")";
         $sql = str_replace("table", $_POST["table"], $insert);
         $sql = str_replace("valeur", $personnel, $sql);
-        $travaille = "";
-        var_dump($sql);
-        //$bdd->query($sql);
-        $sqLog = "INSERT INTO `logs` (`fk_P_L`, `date_L`, `requetes_L`) VALUES ('11', 	
-        NOW(), 'test');";
-        //$bdd->query($sqLog);
+        $bdd->query($sql);
+        $verif['erreur'] = "Tout c'est bien passé";
+    }elseif($verif['erreur'] == "Actualisation du personnel demander"){//si il n'est plus actif mais qu'on le créer a nouveau il s'active simplement
+        $sql = "UPDATE `personnels` SET `active_P` = '1' WHERE email_P = '" . $_POST['mail'] . "'; ";
+        $bdd->query($sql);
+        $verif['erreur'] = "";
+        $verif['erreur'] = "Tout c'est bien passé";
     }
+    
     return  $verif['erreur'];
+}
+
+function VerifMail($mail){
+    $retour = true;
+
+    //variable de test 
+    $testLenMail = str_replace(" ","",$mail);
+
+    if (empty($mail)) {
+        $retour = false;
+    }elseif (strlen($mail) < 1) {
+        $retour = false; 
+    }elseif (strlen($testLenMail) < strlen($mail)) {
+        $retour = false; 
+    }
+    
+
+    return $retour;
 }
 
 
@@ -41,32 +99,39 @@ function CreatePersonnel(){
 function VerifRequest(){
     include("../DAO.php");
     $erreur ="";
-    $_POST['nom']=ucfirst(str_replace(" ","",$_POST['nom']));
-    $_POST['prenom']=ucfirst(str_replace(" ","",$_POST['prenom']));
-    $_POST['mail']=str_replace(" ","",$_POST['mail']);
+    $_POST['nom']=ucfirst(str_replace(" ","-",$_POST['nom']));
+    $_POST['prenom']=ucfirst(str_replace(" ","-",$_POST['prenom']));
     $_POST['mdp']=str_replace(" ","",$_POST['mdp']);
     
     
     
-    if (empty($_POST['nom'])) {
+    if (empty($_POST['nom']) || strlen($_POST['nom']) < 1) {
         $erreur = "Il manque un nom";
-    } else if (empty($_POST['prenom'])) {
+    } else if (empty($_POST['prenom']) || strlen($_POST['prenom']) < 1) {
         $erreur = "Il manque un prenom";
-    } else if (empty($_POST['mail'])) {
-        $erreur = "Il manque un Mail";
-    } else if (empty($_POST['mdp'])) {
+    } else if (!filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL) && !VerifMail($_POST['mail'])) {
+        $erreur = "Il y a un problème avec le Mail";
+    } else if (empty($_POST['mdp']) || strlen($_POST['mdp']) < 1) {
         $erreur = "Il manque un mot de passe";
-    } else if (empty($_POST['roles'])) {
-        $erreur = "Il manque un Role";
-    } else if (empty($_POST['campings'])) {
-        $erreur = "il manque un camping";
     }
     
+
+    if ($_POST['exec'] == "create") {
+        $sel = $bdd->query("SELECT personnels.id_P, active_P FROM personnels WHERE email_P='" . $_POST['mail'] . "' limit 1");
+    
+    }elseif ($_POST['exec'] == "update") {
+        $sel = $bdd->query("SELECT personnels.id_P FROM personnels WHERE email_P='" . $_POST['mail'] . "'  AND `id_P` != ".$_POST['id_P']." limit 1");
+    }
     //on vérifie si le mail n'est pas déja utiliser
-    $sel = $bdd->query("SELECT personnels.id_P FROM personnels WHERE email_P='" . $_POST['mail'] . "' limit 1");
+    
     $tab = $sel->fetchAll();
-    if (count($tab) != 0) {
-        $erreur = "Mail déja utiliser";
+    if (count($tab) > 0) {
+        if($tab[0]['active_P'] == 1){
+            $erreur = "Le mail es utilisé sur un Personnel ";
+        }else{
+            $erreur = "Actualisation du personnel demander";
+        }
+        
     }
     
      //si il y a une photo
@@ -84,8 +149,9 @@ function VerifRequest(){
                 echo "Le fichier est valide, et a été téléchargé
                         avec succès. Voici plus d'informations :\n";
             } else {
-                echo "Attaque potentielle par téléchargement de fichiers.
-                        Voici plus d'informations :\n";
+                // echo "Attaque potentielle par téléchargement de fichiers.
+                //         Voici plus d'informations :\n";
+                $erreur = "probleme lors de la création de l'image";
             }
         } else {
             $erreur = "probleme lors de la création de l'image";
@@ -109,9 +175,9 @@ function VerifRequest(){
             margin-bottom: 10px;
         }
     </style>
-    <title>Redirection en html</title>
-    <div class="erreur"><?php echo CreatePersonnel() ?></div>
-    <meta http-equiv="refresh" content="10; URL=http://testcoordo/personnels/">
+    <title>Crud Personnel</title>
+    <div class="erreur"><?php echo choiceExec() ?></div>
+    <meta http-equiv="refresh" content="200; URL=http://testcoordo/personnels/">
 </head>
 
 </html>
