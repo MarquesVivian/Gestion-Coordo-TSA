@@ -717,7 +717,7 @@ private function SelectM(){
         //var_dump($ins);
         $i=0;
         $affichage = '
-                <table class="table table-bordered table-hover  table-primary table-striped">
+                <table class=" table table-bordered table-hover  table-primary table-striped">
                     <thead>
                         <tr>
                             <th>

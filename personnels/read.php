@@ -29,13 +29,12 @@ if (!empty($_GET["j"]) && $calendrier->isValid($_GET["j"])) {
     if(!empty($_POST["exec"])){
         if($_POST["exec"] == "LinkAn"){
             var_dump($_POST);
-            var_dump(LinkAnimationToPersonnel());
+            LinkAnimationToPersonnel();
             $_POST = null;
             
         }
     }
     $_POST = null;
-    var_dump($_POST);
     $calendrier->afficheTableau($_SESSION["pChoisi"],$_SESSION["camp"]);
 } else {
     header("Location: http://testcoordo/personnels/");
@@ -50,7 +49,7 @@ if (!empty($_GET["j"]) && $calendrier->isValid($_GET["j"])) {
 
     echo'<div class="col" style="width: 250px; height:50px">'. $perso->FormCreateAnimation($_SESSION["pChoisi"],$_GET["j"]).'</div>';
 
-    echo'<div class=" col-4 overflow-auto" style="height: auto;width: 660px;">
+    echo'<div class=" col-4 overflow-auto" style="height: 97%;width: 660px;">
     <span>'. $perso->AnimationParPersonnel($_SESSION["pChoisi"]).'</span></div>
     
     </div>';
@@ -64,7 +63,8 @@ if (!empty($_GET["j"]) && $calendrier->isValid($_GET["j"])) {
 
 function LinkAnimationToPersonnel(){
     include("../DAO.php");
-    $erreur = VerifRequest2();
+    $erreur = VerifRequest3();
+    var_dump($erreur);
     if ($erreur == "") {
         $expinsert = "INSERT INTO table (`id_An`, `id_P`, `id_Act`, `dateDebut_An`, `dateFin_An`, `nb_Particpant_An`)  VALUE valeur ;";
         $insert = $expinsert;
@@ -72,7 +72,7 @@ function LinkAnimationToPersonnel(){
         $sql = str_replace("table", $_POST["table"], $insert);
         $sql = str_replace("valeur", $animation, $sql);
         // var_dump($sql);
-        //$bdd->query($sql);
+        // $bdd->query($sql);
         return "Tout c'est bien passé";
     }
     
@@ -160,12 +160,150 @@ function VerifRequest2(){
         // }
 
 
-        
+        $THU=[];
+        for ($Heure=explode(":", explode(" ",$animation['dateDebut_An'])[1])[0], $i = 0; $Heure <= explode(":", explode(" ",$animation['dateFin_An'])[1])[0] ; $Heure++, $i++) { 
+            var_dump($Heure);
+            if ($Heure == explode(":", explode(" ",$animation['dateDebut_An'])[1])[0]) {
+                $Minute = explode(":", explode(" ",$animation['dateDebut_An'])[1])[1];
+            }else{
+                $Heure = $Heure < 10 ?"0".$Heure :"".$Heure ;
+                $Minute = $Minute < 10 ?"0".$Minute : "".$Minute;
+            }
+            
+            $continue = true;
+            while ( $Minute < 60 && $continue) { 
+                
+                $THU[$i] = $Heure.":".$Minute;
+
+                //var_dump("heure = : ".$Heure);
+                if ($Heure == explode(":", explode(" ",$animation['dateFin_An'])[1])[0]) {
+                    var_dump("On rentre dans le if du Heure");
+                    var_dump($Minute);
+                    var_dump(explode(":", explode(" ",$animation['dateFin_An'])[1])[1]);
+                    if ($Minute == explode(":", explode(" ",$animation['dateFin_An'])[1])[1]) {
+                        var_dump("on rentredans le if minutes");
+                        $continue = false;
+                    }
+                    // 
+                }
+                $Minute+=15;
+                $i++;
+            }
+            $Minute = 0;
+        }
+        var_dump($THU);
     }
 
     return "";
 }
 
+
+function VerifRequest3(){
+    include("../DAO.php"); 
+    if($_POST["HFin"] < $_POST["HDebut"] || ($_POST["HFin"] == $_POST["HDebut"] && $_POST["MFin"] <= $_POST["MDebut"])){
+        return "L'heure de fin d'animation dois etre supperieur à l'heure de début";
+    }
+
+    createArrayHoursTest($_POST["HDebut"].":".$_POST["MDebut"],$_POST["HFin"].":".$_POST["MFin"]);
+
+    $sel = $bdd->query('SELECT `dateDebut_An`,`dateFin_An`  FROM `animations` WHERE DATE_FORMAT(`dateDebut_An`, "%Y-%m-%d") LIKE CURDATE() AND `id_P` = '.$_POST['id_P'].';');
+
+    
+    //on vérifie si les horaires de debut et de fin ne sont pas utiliser quelque part
+    $animations = $sel->fetchAll();
+    $valide = CreateArrayHoursIsUsed($animations,$_POST["HDebut"].":".$_POST["MDebut"],"dateFin_An");
+
+    if ($valide) {
+        return $_POST["HDebut"]."H".$_POST["MDebut"]." es déjà utiliser";
+        var_dump($_POST["HDebut"].":".$_POST["MDebut"]." n'est pas valide");
+    }
+$valide = CreateArrayHoursIsUsed($animations,$_POST["HFin"].":".$_POST["MFin"],"dateDebut_An");
+    if ($valide) {
+        return $_POST["HFin"]."H".$_POST["MFin"]." es déjà utiliser";
+        var_dump($_POST["HFin"].":".$_POST["MFin"]." n'est pas une horraire valide");
+    }
+}
+
+function createArrayHoursTest($Hdebut,$Hfin){
+    //on vas créer 2 tableau, un avec l'heure de debut et l'autre avec l'heure de fin
+
+    $Minute="";
+    $tableauHAnimation = [];
+    
+    for ($Heure=explode(":", $Hdebut)[0], $i = 0; $Heure <= explode(":", $Hfin)[0] ; $Heure++) { 
+        if ($Heure == explode(":", $Hdebut)[0]) {
+            $Minute = explode(":", $Hdebut)[1];
+        }else{
+            $Heure = $Heure < 10 ?"0".$Heure :"".$Heure ;
+            $Minute = $Minute < 10 ?"0".$Minute : "".$Minute;
+        }
+            
+        $continue = true;
+        while ( $Minute < 60 && $continue) { 
+            $tableauHAnimation[$i] = $Heure.":".$Minute;
+            var_dump($Minute);
+            if ($Heure == explode(":", $Hfin)[0]) {
+                if ($Minute == explode(":", $Hfin)[1]) {
+                    $continue = false;
+                    $i--;
+                }
+            }
+            $Minute+=15;
+            $i++;
+        }
+        $Minute = 0;
+    }
+    return $tableauHAnimation;
+
+}
+
+function CreateArrayHoursIsUsed($animations,$horraireAVerifier,$startOrEnd){
+    var_dump("on vérifie si : ".$horraireAVerifier." es une horraire valide");
+    $arrayHoursUsed=[];
+    $i = 0;
+    foreach($animations as $animation){
+        
+        $heureASupprimer = explode(":", explode(" ",$animation[$startOrEnd])[1])[0].":".explode(":", explode(" ",$animation[$startOrEnd])[1])[1];
+        $Minute="";
+        for ($Heure=explode(":", explode(" ",$animation['dateDebut_An'])[1])[0]; $Heure <= explode(":", explode(" ",$animation['dateFin_An'])[1])[0] ; $Heure++) { 
+            if ($Heure == explode(":", explode(" ",$animation['dateDebut_An'])[1])[0]) {
+                $Minute = explode(":", explode(" ",$animation['dateDebut_An'])[1])[1];
+            }else{
+                $Heure = $Heure < 10 ?"0".$Heure :"".$Heure ;
+                $Minute = $Minute < 10 ?"0".$Minute : "".$Minute;
+            }
+            $continue = true;
+            while ( $Minute < 60 && $continue) { 
+                $arrayHoursUsed[$i] = $Heure.":".$Minute;
+                if ($Heure == explode(":", explode(" ",$animation['dateFin_An'])[1])[0]) {
+                    if ($Minute == explode(":", explode(" ",$animation['dateFin_An'])[1])[1]) {
+                        $continue = false;
+                        $i--;
+                    }
+                }
+                $Minute+=15;
+                $i++;
+            }
+            $Minute = 0;
+        }
+        unset($arrayHoursUsed[array_search($heureASupprimer, $arrayHoursUsed)]);
+    }
+
+    if (in_array($horraireAVerifier,$arrayHoursUsed) == false){
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Ont veut créer des Animations 
+ * chaque animation aura une horraire de debut et une horraire de fin
+ * une horraire de debut peut etre égale a une horraire de fin d'une autre animation.
+ * une horraire de fin peut être égale à une horraire de debut d'une autre animation.
+ * il faut faire attention a ce que les horaire d'une animations ne sois pas déja utiliser
+ * exemple : animation N°1 hdebut = 08:00 hFin=10:00 animation N°2 hDebut = 09:00 HFin = 11:00
+ * 
+ */
 ?>
 
 
