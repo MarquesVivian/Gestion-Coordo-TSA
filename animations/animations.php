@@ -74,7 +74,7 @@ class Animation
         }else if($activite == "update"){
             $btn = '
             <!-- Button trigger modal -->
-                <button type="button" id="btn-Test" class="btn '.$this->activite->getCouleurActivite()." w-100".'" data-bs-toggle="modal" data-bs-target="#ModalAnimation'.$activite.'Id'.$this->id_An.'">
+                <button type="button" id="btn-Test" class="btn '.$this->activite->getCouleurActivite()." w-100".'" data-bs-toggle="modal" data-bs-target="#ModalUpdateAnimation'.$activite.'Id'.$this->id_An.'">
                     '.$titre.'
                 </button>';
         }else if($activite == "view"){
@@ -83,6 +83,13 @@ class Animation
                 <button type="button" id="btn-Test" class="btn '.$this->activite->getCouleurActivite()." w-100".'" data-bs-toggle="modal" data-bs-target="#ModalAnimation'.$activite.'Id'.$this->id_An.'">
                     '.$titre.'
                 </button>';
+        }else if($activite == "delete"){
+            $btn = '
+            <!-- Button trigger modal -->
+                <button type="button" id="btn-Test" class="btn '.$this->activite->getCouleurActivite()." w-100".'" data-bs-toggle="modal" data-bs-target="#ModalAnimation'.$activite.'Id'.$this->id_An.'">
+                    '.$titre.'
+                </button>';
+
         }
         return $btn;
     }
@@ -92,73 +99,83 @@ class Animation
     {
         $titre = $this->activite->getLibelleActivite();
         $dateDebut = $this->dateDebut;
-        $modal= 
-        '<!-- Modal -->
-        
-        <div class="modal fade " id="ModalAnimation'.$activite.'Id'.$this->id_An.'" tabindex="-1" aria-labelledby="ModalAnimation'.$activite.'Id'.$this->id_An.'" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content '.$this->activite->getCouleurActivite()." w-100".'">
-                    <div class="modal-header">
-
-                        <div class="col">
-                            <h5 class="modal-title text-center" id="ModalAnimation'.$activite.'Id'.$this->id_An.'">'.$titre.'</h5>
-                        </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-
-                    <div class="modal-body">
-                    <form enctype="multipart/form-data" action="crud" method="post">
-                        ' .
-                    $this->formulaireAnimation($activite,$titre)
-            . '
-                    </form>
-                </div>
-            </div>
-        </div>
-        </div>
-        
-        
-        ';
-        return $modal;
-    }
-
-    private function formulaireAnimation($activite,$titre)
-    {
-        $formulaireAnimation="";
-
         switch ($activite) {
             
-            case 'create':
-                $formulaireAnimation .= '
-                <input type="hidden" name="table" value="activites"/>
-                <input type="hidden" name="exec" value="create"/>';
-
-                break;
             
             case 'update':
-                $formulaireAnimation .= '
-                <input type="hidden" name="table" value="activites"/>
-                <input type="hidden" name="exec" value="update"/>
-                <input type="hidden" name="id_Act" value=""/>';
+                $modal= 
+                '<!-- Modal -->
+                
+                <div class="modal fade " id="ModalUpdateAnimation'.$activite.'Id'.$this->id_An.'" tabindex="-1" aria-labelledby="ModalAnimation'.$activite.'Id'.$this->id_An.'" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content '.$this->activite->getCouleurActivite()." w-100".'">
+                            <div class="modal-header">
+        
+                                <div class="col">
+                                    <h5 class="modal-title text-center" id="ModalAnimation'.$activite.'Id'.$this->id_An.'">'.$titre.'</h5>
+                                </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+        
+                            <div class="modal-body">
+                            <form enctype="multipart/form-data" action="crud" method="post">
+                           
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+                
+                ';
                     
                  break;
 
-            case 'delete':
-                $formulaireAnimation .= '
-                <input type="hidden" name="table" value="activites"/>
-                <input type="hidden" name="exec" value="delete"/>
-                <input type="hidden" name="id_Act" value=""/>';
-                        
-                 break;
 
             case 'view':
-                $formulaireAnimation .= '
-                <input type="hidden" name="table" value="activites"/>
-                <input type="hidden" name="exec" value="view"/>
-                <input type="hidden" name="id_Act" value=""/>';
+                $modal= 
+                '<!-- Modal -->
+                
+                <div class="modal fade " id="ModalAnimation'.$activite.'Id'.$this->id_An.'" tabindex="-1" aria-labelledby="ModalAnimation'.$activite.'Id'.$this->id_An.'" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content '.$this->activite->getCouleurActivite()." w-100".'">
+                            <div class="modal-header">
+        
+                                <div class="col">
+                                    <h5 class="modal-title text-center" id="ModalAnimation'.$activite.'Id'.$this->id_An.'">'.$titre.'</h5>
+                                </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+        
+                            <div class="modal-body">
+                            
+                                ';
+
+                                    $modal .= $this->formulaireAnimation($titre);
+
+                            
+                    $modal .= '
+                            
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+                
+                ';
                             
                 break;
         }
+
+        return $modal;
+    }
+
+    private function formulaireAnimation($titre)
+    {
+        $formulaireAnimation="";
+
+        $formulaireAnimation .= '';
+
         $dateAAfficher = new DateTimeImmutable($this->getDateDebut());
         $formulaireAnimation .= '
         <div class="row">
@@ -181,14 +198,32 @@ class Animation
             <div class="col-3 text-center">De :</div> 
             <div class="col-9 text-left">'.explode(":",explode(" ",$this->getDateDebut())[1])[0].'H'.explode(":",explode(" ",$this->getDateDebut())[1])[1].' à '.explode(":",explode(" ",$this->getDateFin())[1])[0].'H'.explode(":",explode(" ",$this->getDateFin())[1])[1].'</div>
         </div>
-        <br>
+        <br>';
+        // var_dump($_SERVER);
 
-        <div>
-            <div class="modal-footer">
+        if (in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array("Responsable d'animation","Coordinateur", "Administration TSA"))){
+            $formulaireAnimation .= '
+            <div>
+                <div class="modal-footer">
+                <form enctype="multipart/form-data" action="" method="get">
+                <input type="hidden" name="table" value="activites"/>
+                <input type="hidden" name="update" value="update"/>
+                <input type="hidden" name="id_An" value="'.$this->getId_An().'"/>
                 <button type="submit" class="btn btn-primary">Modifier</button>
-                <button type="submit" class="btn btn-danger">Supprimer</button>
-            </div>
-        </div> ';
+                
+            </form>
+                   ';
+                   $formulaireAnimation .= ' 
+                    <form enctype="multipart/form-data" action="crud" method="post">
+                        <input type="hidden" name="table" value="activites"/>
+                        <input type="hidden" name="exec" value="delete_Animation"/>
+                        <input type="hidden" name="id_An" value="'.$this->getId_An().'"/>
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div> ';
+        }
+       
 
         return $formulaireAnimation;
     }

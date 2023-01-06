@@ -20,7 +20,7 @@
             $_SESSION["camp"] = $_POST["campings"];
         }
         if (in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array("Responsable d'Animation","Animateur", "Administration Camping"))) {
-            $perso->toutPersonnelsCamping($_SESSION["camp"]);
+            $calendrier->afficheTableau("",$_SESSION["camp"]);
         } elseif (in_array($_SESSION['Personnel']->getRole()->getLibelleRole(), array("Coordinateur", "Administration TSA"))) {//si c'est un coordo on lui met un choix de camping
             echo '<br><br>
             <form action="" method="post">
@@ -34,8 +34,7 @@
                     <button type="submit" class="btn btn-primary">Valider</button>
                 </div>
             </div>
-            </form>
-            <br><br>';
+            </form>';
 
             $calendrier->afficheTableau("",$_SESSION["camp"]);
         }

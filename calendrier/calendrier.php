@@ -42,25 +42,29 @@ class calendrier
 
         $tableauPersonne[0][0] = "    
         <div class='container-fluid'>
-            <h1 class='d-flex justify-content-center'>
-                <a href='". $lien . $dateM1Formater_Ymd . "'>
-                    <
-                </a>
-                <span> 
-                    Calendrier du " . $dateFormater_dFY . " 
-                </span>
-                <a href='".$lien . $dateP1Formater_Ymd . "'>
-                    >
-                </a> 
-            </h1>
-            <table class='table table-bordered table-hover  table-primary table-striped'>
-            <thead>
-                <tr>
-                    <th style='padding-left: 0px; padding-right: 0px;' scope='col'>
-                        <a href='../personnels/'>
-                            <input type='submit' style='width : 100%;' value='Animateurs' >
-                        </a>
-                    </th>";
+            <div class='d-flex justify-content-center  '>
+                <h1 class=''>
+                    <a href='". $lien . $dateM1Formater_Ymd . "'>
+                        <
+                    </a>
+                    <span> 
+                        Calendrier du " . $dateFormater_dFY . " 
+                    </span>
+                    <a href='".$lien . $dateP1Formater_Ymd . "'>
+                        >
+                    </a> 
+                </h1>
+            </div>
+            <div>
+                <div class=' col-4 overflow-auto' style='width: 100%;'>
+                    <table class='table table-bordered table-hover  table-primary table-striped'>
+                        <thead>
+                            <tr>
+                                <th style='padding-left: 0px; padding-right: 0px;' scope='col'>
+                                    <a href='../personnels/'>
+                                        <input type='submit' style='width : 100%;' value='Animateurs' >
+                                    </a>
+                                </th>";
 
         $horraire = 8;
         $idemiH = 0;
@@ -233,7 +237,7 @@ class calendrier
 
         $tableauPersonne[$lignePersonne][sizeof($tableauPersonne[0]) - 1] .= " 
             </tbody>
-        </table>
+        </table></div></div>
     </div>";
     return $tableauPersonne;
     }

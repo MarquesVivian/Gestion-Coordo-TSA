@@ -177,7 +177,7 @@ class Personnel
      *
      * @return  self
      */
-    public function setCardsPersonnels($insPersonnels)
+    public function setCardsPersonnels($insPersonnels,$styleMargin20Px)
     {
         require("../DAO.php");
 
@@ -212,12 +212,12 @@ class Personnel
 
             if ($row == 3) {
                 $card .= "</div>
-                    <div class='row' style='margin: 20px 20px 20px 20px;'>";
+                    <div class='row' ".$styleMargin20Px.">";
 
                 $row = -1;
             } elseif ($row == 4) { //premier passage
                 $card = "
-                <div class='row' style='margin: 20px 20px 20px 20px;'>";
+                <div class='row' ".$styleMargin20Px.">";
                 $row = -1;
             }
 
@@ -239,7 +239,8 @@ class Personnel
             $card .= "<div class='col'>
                         
                             <div class='card arrondi bg-image hover-overlay' style='width: 18rem; '>
-                            <form enctype='multipart/form-data' action='read.php?j=".date('Y-m-d')."' method='post'>
+                            <form enctype='multipart/form-data' action='read' method='get'>
+                                    <input type='hidden' name='j' value='".date('Y-m-d')."'/>
                                     <input type='hidden' name='table' value='personnels'/>
                                     <input type='hidden' name='id_P' value='".$personnel->getId()."'/>
 
@@ -294,7 +295,7 @@ class Personnel
         GROUP BY `personnels`.`id_P`
         ORDER BY `personnels`.`id_R` DESC;');
 
-        $this->setCardsPersonnels($insPersonnels);
+        $this->setCardsPersonnels($insPersonnels,"style='margin: 20px 20px 20px 20px;'");
     }
 
 
@@ -312,10 +313,10 @@ class Personnel
         GROUP BY `personnels`.`id_P`
         ORDER BY `personnels`.`id_R` DESC ;');
 
-        $this->setCardsPersonnels($insPersonnels);
+        $this->setCardsPersonnels($insPersonnels,"style='margin: 20px 20px 20px 20px;'");
     }
 
-    public function unPersonnels($idPerso){
+    public function unPersonnels($idPerso,$styleMargin20Px){
         include "../DAO.php";
         $insPersonnels = $bdd->query('SELECT `personnels`.`id_P`, `nom_P`, `prenom_P`, `photo_P`, `num_Tel_P`, `email_P`, `personnels`.`id_R`, `libelle_R` from `personnels`
         RIGHT JOIN `roles` on `personnels`.`id_R` = `roles`.`id_R`
@@ -325,7 +326,7 @@ class Personnel
         GROUP BY `personnels`.`id_P`
         ORDER BY `personnels`.`id_R` DESC ;');
 
-        $this->setCardsPersonnels($insPersonnels);
+        $this->setCardsPersonnels($insPersonnels,$styleMargin20Px);
     }
 
 
@@ -649,27 +650,69 @@ class Personnel
 
     }
 
-private function SelectH(){
-    $h="";
-    for ($i=8; $i < 25; $i++) { 
-        $d = $i<10?"0".$i:$i;
-       $h .= '<option value="'.$d.'">'.$i.' H </option>' ;
+    private function SelectH(){
+        $h="";
+        for ($i=8; $i < 25; $i++) { 
+            $d = $i<10?"0".$i:$i;
+        $h .= '<option value="'.$d.'">'.$i.' H </option>' ;
+        }
+        
+        return $h;
     }
-    
-    return $h;
-}
 
-private function SelectM(){
-    $minutes="";
-    for ($i=0; $i < 60; $i+=15) { 
-        $d = $i<10?"0".$i:$i;
-       $minutes .= '<option value="'.$d.'">'.$i.' M </option>' ;
+    private function SelectM(){
+        $minutes="";
+        for ($i=0; $i < 60; $i+=15) { 
+            $d = $i<10?"0".$i:$i;
+        $minutes .= '<option value="'.$d.'">'.$i.' M </option>' ;
+        }
+        
+        return $minutes;
     }
     
-    return $minutes;
-}
+
 
     public function FormCreateAnimation($idPerso,$date){
+        $formulaireAnimation = '
+        <form enctype="multipart/form-data" action="'.$_SESSION["historique"][$_SESSION["iterator"]-1].'" method="post">
+            <input type="hidden" name="table" value="animations"/>
+            <input type="hidden" name="exec" value="LinkAn"/>
+            <input type="hidden" name="id_P" value="' . $idPerso . '"/>
+            <div class="row">
+                '.$this->ChoixActivites($idPerso).'
+            </div>
+            <div class="row">
+                Date de debut: <input type="date" name="DateDebut" value="'.$date.'" />
+            </div>
+            <div class="row">
+                <div class="col">
+                    Heure de Debut:
+                </div>
+                <div class="col">
+                    Heure de fin:
+                </div>
+
+            </div>
+            <div class="row">
+            <div class="col">
+                <select name="HDebut" id="horaire-de-debut">'.$this->SelectH().'</select> <select name="MDebut" id="minutes-de-debut">'.$this->SelectM().'</select>
+            </div>
+            <div class="col">
+                <select name="HFin" id="horaire-de-fin">'.$this->SelectH().'</select> <select name="MFin" id="minutes-de-fin">'.$this->SelectM().'</select>
+            </div>
+
+        </div>
+            <div class="row ">
+            ㅤ
+                <input type="submit" class="btn btn-primary" value="Créer"/>
+            </div>
+            
+        </form>';
+
+        return $formulaireAnimation;
+    }
+    
+    public function FormUpdateAnimation($idPerso,$date,$id){
         $formulaireAnimation = '
         <form enctype="multipart/form-data" action="read.php?j='.date('Y-m-d').'" method="post">
             <input type="hidden" name="table" value="animations"/>
@@ -751,7 +794,9 @@ private function SelectM(){
             $i++;
             $affichage .= '
                         <tr>
-                            <td style="background : '.$animation->getActivite()->getCouleurActivite().'; box-shadow: none"></td>
+                            <td style="background : '.$animation->getActivite()->getCouleurActivite().'; box-shadow: none">
+                            '.$animation->BtnModalAnimation("view").
+                             $animation->ModalAnimation("view").'</td>
                             <td>'.$animation->getActivite()->getLibelleActivite().'</td>
                             <td>'.$animation->getActivite()->getDescriptionActivite().'</td>
                             <td>'.explode(" ",$animation->getDateDebut())[0].'</td>

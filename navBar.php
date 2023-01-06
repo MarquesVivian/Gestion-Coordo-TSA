@@ -15,6 +15,8 @@ if(!empty($_SESSION['timestamp'])){
     header("Location:../securites/deconnexion.php"); //redirect to dexonnexion
     exit;
   } else {
+    $_SESSION["historique"][$_SESSION["iterator"]] = $_SERVER["REQUEST_URI"];
+    $_SESSION["iterator"]+=1;
     $_SESSION['timestamp'] = time(); //set new timestamp
   }
 }
@@ -81,5 +83,5 @@ if(!empty($_SESSION['timestamp'])){
 </nav>
 
 <?php
-// var_dump($_SESSION);
+// var_dump($_SESSION["historique"]);
 ?>

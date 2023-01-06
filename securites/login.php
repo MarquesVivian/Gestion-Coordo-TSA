@@ -41,6 +41,7 @@ if (isset($valider)) {
       $_SESSION["camp"] = $arrayCampings[0]->getIdCamping();
       $_SESSION["connecter"] = "oui";
       $_SESSION["timestamp"] = time();
+      $_SESSION["iterator"] = 0;
       header("location:../index.php");
    } else {
 

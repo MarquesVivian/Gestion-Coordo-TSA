@@ -1,5 +1,5 @@
 <?php
-
+include("../navBar.php");
 //si c'est une création
 
 function choiceExec(){
@@ -13,6 +13,12 @@ if ($_POST['exec'] == "create") {
             UPDATE `travaille` set `active_Tr` = '0' WHERE `personnels`.`id_P` = " . $_POST['id_P'] . ";";
     $bdd->query($sql);
 
+}elseif ($_POST['exec'] == "delete_Animation") {
+    
+    $sql = "DELETE FROM `animations` WHERE `animations`.`id_An` = " . $_POST['id_An'] . ";";
+
+    $bdd->query($sql);
+    return"Animation supprimer";
 }elseif ($_POST['exec'] == "update") {
     return UpdatePersonnel();
 }
@@ -163,10 +169,8 @@ function VerifRequest(){
 }
 
 
-
-?>
-
-<html>
+//echo "<script>javascript:history.back()</script>" ;
+echo'<html>
 
 <head>
     <style>
@@ -176,8 +180,10 @@ function VerifRequest(){
         }
     </style>
     <title>Crud Personnel</title>
-    <div class="erreur"><?php echo choiceExec() ?></div>
-    <meta http-equiv="refresh" content="200; URL=http://testcoordo/personnels/">
+    <div class="erreur">'.choiceExec() .'</div>
+    <meta http-equiv="refresh" content="1; URL='.$_SESSION["historique"][$_SESSION["iterator"]-2].'">
 </head>
 
-</html>
+</html>';
+?>
+
